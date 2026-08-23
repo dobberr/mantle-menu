@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-16ZLTDD1PV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-16ZLTDD1PV');
+</script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <title>Google</title>
+  <link rel="icon" href="https://www.google.com/favicon.ico">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;600;700&family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #09090b;
+      --border: rgba(255, 255, 255, 0.08);
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Geist', sans-serif;
+      --leading: 1.6;
+    }
+
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+    /* Google Sites iframe optimization */
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: #fafafa;
+      font-family: var(--font-body);
+      line-height: var(--leading);
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      letter-spacing: -0.02em;
+    }
+
+    .bg-visuals {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: 
+        radial-gradient(circle at 50% -20%, rgba(1, 181, 203, 0.12), transparent 70%),
+        radial-gradient(circle at 0% 0%, rgba(15, 23, 42, 0.4), transparent 50%);
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(to bottom, black, transparent);
+    }
+
+    .glass-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 10;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: #0c0c0e;
+      transform: translateY(-2px);
+    }
+
+    .icon-box {
+      width: 40px; height: 40px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-launch {
+      font-weight: 600; font-size: 13px;
+      padding: 8px 16px; border-radius: 6px;
+      background: #ffffff; color: #000;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+
+    .btn-launch:hover { 
+      background: #e4e4e7;
+      transform: scale(1.02);
+    }
+
+    .discord-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    
+    .discord-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: #5865F2;
+    }
+
+    .btn-discord {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-weight: 600; font-size: 11px;
+      padding: 6px 14px; border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-discord:hover {
+      background: #5865F2;
+      border-color: #5865F2;
+    }
+
+    .description-text {
+      font-family: var(--font-body);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      line-height: 1.8;
+      color: #a1a1aa;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { animation: fadeIn 0.6s ease-out both; }
+  </style>
+</head>
+
+<body class="w-full min-h-[100dvh] flex flex-col items-center p-4 sm:p-6 pt-10 sm:pt-20">
+
+  <div class="bg-visuals"></div>
+  <div class="bg-grid"></div>
+
+  <main class="relative z-10 w-full max-w-lg">
+
+    <header class="text-center mb-8 sm:mb-10 reveal">
+      <img 
+        src="https://mantleassets.vercel.app/full%20logo.png" 
+        alt="Mantle" 
+        class="w-full max-w-[280px] sm:max-w-[400px] h-auto mx-auto mb-4"
+        draggable="false"
+      >
+      <p class="text-[13px] sm:text-[14px] description-text max-w-[420px] mx-auto px-2 sm:px-0">
+        A collection of web apps and utilities built for heavily networked environments like schools. Access everything you need from one unified workspace.
+      </p>
+    </header>
+
+    <section class="space-y-3 mb-8">
+      
+      <article class="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-5 reveal" style="animation-delay: 0.1s">
+        <div class="icon-box text-sky-400 shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <h2 class="text-[15px] sm:text-[16px] font-bold text-white leading-tight truncate">Mineral</h2>
+          </div>
+          <p class="text-[11px] sm:text-[12px] text-zinc-500 font-medium truncate">Play Minecraft in your browser</p>
+        </div>
+        <button onclick="launchMineral()" class="btn-launch shrink-0">Launch</button>
+      </article>
+
+      <article class="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-5 reveal" style="animation-delay: 0.2s">
+        <div class="icon-box text-emerald-400 shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.37 2.63a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-[15px] sm:text-[16px] font-bold text-white leading-tight truncate">Slate</h2>
+          <p class="text-[11px] sm:text-[12px] text-zinc-500 font-medium truncate">The ultimate AI for schoolwork</p>
+        </div>
+        <button onclick="launchSlate()" class="btn-launch shrink-0">Launch</button>
+      </article>
+
+      <article class="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-5 reveal" style="animation-delay: 0.3s">
+        <div class="icon-box text-violet-400 shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M2 12h2m16 0h2"></path></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-[15px] sm:text-[16px] font-bold text-white leading-tight truncate">Magma</h2>
+          <p class="text-[11px] sm:text-[12px] text-zinc-500 font-medium truncate">Unblock any website with ease</p>
+        </div>
+        <button onclick="launchMagma()" class="btn-launch shrink-0">Launch</button>
+      </article>
+
+    </section>
+
+    <section class="reveal" style="animation-delay: 0.4s">
+      <div class="h-px w-full bg-zinc-900 mb-8"></div>
+      
+      <article class="discord-card p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+        <div class="icon-box text-[#5865F2] bg-[#5865F2]/5 border-[#5865F2]/20 shrink-0">
+          <svg class="w-[20px] h-[20px] sm:w-[22px] sm:h-[22px]" viewBox="0 0 127.14 96.36" fill="currentColor">
+            <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.72-11A68.6,68.6,0,0,1,28.4,79.51c.85-.63,1.68-1.3,2.47-2a75.46,75.46,0,0,0,65.44,0c.79.68,1.62,1.35,2.47,2a68.52,68.52,0,0,1-10.37,5.87,74.83,74.83,0,0,0,6.72,11,105.56,105.56,0,0,0,31.07-18.83C129.7,50.12,123.81,27.31,107.7,8.07Z"/>
+            <circle cx="42.78" cy="47.54" r="8.76" fill="#5865F2"/>
+            <circle cx="84.36" cy="47.54" r="8.76" fill="#5865F2"/>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-[13px] sm:text-[14px] font-bold text-zinc-300 leading-tight truncate">Community Discord</h2>
+          <p class="text-[10px] sm:text-[11px] text-zinc-600 font-medium truncate">Get updates and request features</p>
+        </div>
+        <a href="https://discord.gg/tzvrq8SmSm" target="_blank" class="btn-discord shrink-0">Join</a>
+      </article>
+    </section>
+
+    <footer class="mt-12 sm:mt-16 text-center pb-8">
+      <div class="h-px w-12 bg-zinc-800 mx-auto mb-6"></div>
+      <span class="text-[10px] tracking-[0.6em] font-bold text-zinc-600 uppercase" style="font-family: var(--font-display);">Mantle Ecosystem</span>
+      <p class="text-[9px] text-zinc-700 mt-2 font-medium uppercase tracking-widest">Est. 2025 • Built for students</p>
+    </footer>
+
+  </main>
+
+<script>
+const CONFIG = {
+  mineral: "https://mineral-mantle.laneesports.com/",
+  slate: "https://slate-mantle.laneesports.com",
+  magma: "https://magmafrontend-mantle.laneesports.com/"
+};
+
+const SPOOF_OPTIONS = [
+  { title: "Google", icon: "https://www.google.com/favicon.ico" },
+  { title: "Google Classroom", icon: "https://www.gstatic.com/classroom/favicon.png" },
+  { title: "Google Drive", icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" },
+  { title: "Google Docs", icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" }
+];
+
+const WINDOW_FEATURES = "width=" + screen.width + ",height=" + screen.height + ",menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes,popup=yes";
+
+function applySpoof(targetDoc, spoof) {
+  targetDoc.title = spoof.title;
+  var link = targetDoc.querySelector("link[rel~='icon']");
+  if (!link) { link = targetDoc.createElement('link'); link.rel = 'icon'; targetDoc.head.appendChild(link); }
+  link.href = spoof.icon;
+}
+
+var currentSpoof = SPOOF_OPTIONS[Math.floor(Math.random() * SPOOF_OPTIONS.length)];
+applySpoof(document, currentSpoof);
+setInterval(function() { if (document.title !== currentSpoof.title) applySpoof(document, currentSpoof); }, 200);
+
+// FULL LEGAL DOCUMENTS MODAL
+function openSlateLegalDocs() {
+  var existingModal = document.getElementById('slate-privacy-modal');
+  if (existingModal) existingModal.remove();
+
+  var modal = document.createElement('div');
+  modal.id = "slate-privacy-modal";
+  modal.style = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
+  modal.innerHTML = `
+    <div style="background: #09090b; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; width: 100%; max-width: 600px; color: #fafafa; box-shadow: 0 20px 50px rgba(0,0,0,0.7); max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+        <h2 style="font-size: 18px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; margin: 0;">Slate Legal Agreements</h2>
+        <button onclick="document.getElementById('slate-privacy-modal').remove()" style="background: transparent; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
+      </div>
+      
+      <div style="font-size: 13px; line-height: 1.6; color: #a1a1aa;">
+        <p style="margin-bottom: 16px;">Last Updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p>
+        
+        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 24px 0 10px 0; border-left: 2px solid #60a5fa; padding-left: 8px;">Part 1: Terms of Service</h3>
+        
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.1 Acceptance and Capacity</h4>
+        <p style="margin-bottom: 12px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p>
+
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.2 Acceptable Use</h4>
+        <p style="margin-bottom: 12px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p>
+
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.3 Limitation of Liability</h4>
+        <p style="margin-bottom: 12px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p>
+
+        <div style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px; padding: 14px; margin-bottom: 24px;">
+          <h4 style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #ef4444; margin: 0 0 6px 0;">1.4 Slate [UNCENSORED] Tier Agreement</h4>
+          <p style="font-size: 12px; color: #fca5a5; margin: 0; line-height: 1.5;">
+            Registered users executing queries via the invite-only <code>Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters; therefore, the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.
+          </p>
+        </div>
+
+        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 0 0 10px 0; border-left: 2px solid #34d399; padding-left: 8px;">Part 2: Privacy Policy</h3>
+        <p style="margin-bottom: 12px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p>
+        
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; margin: 0 0 4px 0;">2.1 Data We Collect</h4>
+        <ul style="margin: 0 0 14px 0; padding-left: 20px; list-style-type: disc;">
+          <li style="margin-bottom: 4px;">Account username profile data</li>
+          <li style="margin-bottom: 4px;">Authentication email address</li>
+          <li style="margin-bottom: 4px;">Last active system timestamps</li>
+          <li style="margin-bottom: 4px;">Account initialization timestamps</li>
+          <li style="margin-bottom: 4px;">Cumulative totals of prompts sent and token payloads utilized</li>
+        </ul>
+
+      </div>
+
+      <button onclick="document.getElementById('slate-privacy-modal').remove()" style="width: 100%; margin-top: 16px; padding: 12px; background: #ffffff; color: #000000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">Close Document</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function launchWithSpoof(url, showNoticeBanner = false) {
+  var win = window.open("about:blank", "_blank", WINDOW_FEATURES);
+  if (!win) { alert("Please allow popups."); return; }
+
+  var d = win.document;
+  d.open();
+  d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000;overflow:hidden;width:100vw;height:100vh;"></body></html>`);
+  d.close();
+
+  applySpoof(d, currentSpoof);
+  setInterval(function() { applySpoof(d, currentSpoof); }, 500);
+
+  var frame = d.createElement('iframe');
+  frame.src = url;
+  frame.style.width = "100vw";
+  frame.style.height = "100vh";
+  frame.style.border = "none";
+  frame.style.display = "block";
+  
+  frame.setAttribute("allow", "fullscreen; pointer-lock; gamepad; keyboard-map; clipboard-read; clipboard-write; camera; microphone");
+  frame.setAttribute("sandbox", "allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-pointer-lock");
+  frame.setAttribute("allowfullscreen", "true");
+
+  d.body.appendChild(frame);
+
+  // Inject the notification banner directly into the newly opened about:blank window if requested
+  if (showNoticeBanner) {
+    var banner = d.createElement('div');
+    banner.style.cssText = "position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 480px; background: rgba(69, 26, 3, 0.9); border: 1px solid rgba(245, 158, 11, 0.3); color: #fde68a; backdrop-filter: blur(8px); padding: 16px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); display: flex; align-items: flex-start; gap: 12px; font-family: sans-serif; opacity: 0; transition: opacity 0.5s ease; box-sizing: border-box;";
+    banner.innerHTML = `
+      <svg style="width: 20px; height: 20px; color: #fbbf24; flex-shrink: 0; margin-top: 2px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <div style="flex: 1; font-size: 13px; line-height: 1.5; min-w-0;">
+        <strong style="display: block; color: #fcd34d; margin-bottom: 4px; font-size: 14px;">Account Inactivity Notice</strong>
+        To keep Slate completely free for active users, any accounts left inactive for 3+ months are automatically deleted to free up system space. You can always remake an account if yours gets removed.
+      </div>
+      <button style="background: transparent; border: none; color: rgba(251, 191, 36, 0.6); font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0;" onmouseover="this.style.color='#fde68a'" onmouseout="this.style.color='rgba(251, 191, 36, 0.6)'">&times;</button>
+    `;
+    
+    d.body.appendChild(banner);
+    
+    var closeBtn = banner.querySelector('button');
+    var timeoutId;
+    
+    function closeBanner() {
+      banner.style.opacity = '0';
+      setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 500);
+      clearTimeout(timeoutId);
+    }
+    
+    closeBtn.onclick = closeBanner;
+    
+    // Trigger fade in
+    setTimeout(() => { banner.style.opacity = '1'; }, 100);
+    
+    // Auto dismiss after 20 seconds
+    timeoutId = setTimeout(closeBanner, 20000);
+  }
+}
+
+function showSlateModal(onAccept) {
+  var existingModal = document.getElementById('slate-welcome-modal');
+  if (existingModal) existingModal.remove();
+
+  var slateLogo = "https://mantleassets.vercel.app/Slate/Slate.png";
+  var modal = document.createElement('div');
+  modal.id = "slate-welcome-modal";
+  modal.style = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
+  modal.innerHTML = `
+    <div style="background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; width: 100%; max-width: 480px; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; box-sizing: border-box;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="${slateLogo}" alt="Slate" style="width: 48px; height: 48px; border-radius: 12px; margin-bottom: 12px; display: inline-block;">
+        <h2 style="font-size: 20px; font-weight: 700; margin: 0;">Welcome to Slate</h2>
+        <p style="font-size: 13px; color: #a1a1aa; margin-top: 6px;">Your AI helper for schoolwork and projects.</p>
+      </div>
+
+      <!-- ABOUT SLATE -->
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 16px; margin-bottom: 20px; line-height: 1.5;">
+        <h3 style="font-size: 11px; text-transform: uppercase; color: #71717a; letter-spacing: 0.05em; margin: 0 0 8px 0; font-weight: 600;">What Slate Can Do</h3>
+        <p style="font-size: 12px; color: #a1a1aa; margin: 0 0 12px 0;">
+          Slate is designed to assist you directly in your browser. It can help you draft essays, summarize long articles, brainstorm fresh ideas for projects, explain complex math concepts step-by-step, and intelligently organize your study notes.
+        </p>
+        <p style="font-size: 11.5px; color: #71717a; margin: 0; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+          <strong style="color: #d4d4d8;">Need a completely unrestricted model?</strong> We offer a private, uncensored version of Slate designed for home use. This version operates completely free of standard safety guardrails, giving you absolute freedom over your prompts. You can request access in our <a href="https://discord.gg/tzvrq8SmSm" target="_blank" style="color: #5865F2; text-decoration: underline;">Discord server</a>.
+        </p>
+      </div>
+
+      <!-- TERMS CHECKBOX WITH INTERACTIVE LEGAL LINKS -->
+      <div style="margin-bottom: 24px; background: rgba(16, 185, 129, 0.04); padding: 14px; border-radius: 10px; border: 1.5px solid #10b981;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+          <input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 3px; transform: scale(1.15); accent-color: #10b981; cursor: pointer; flex-shrink: 0;">
+          <span style="font-size: 12px; color: #fafafa; font-weight: 500; line-height: 1.5;">
+            I acknowledge that I have read and agree to the 
+            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #10b981; font-weight: 700; text-decoration: underline;">Terms of Service</a> 
+            and 
+            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #10b981; font-weight: 700; text-decoration: underline;">Privacy Policy</a>. 
+            I understand my legal responsibilities regarding acceptable use.
+          </span>
+        </label>
+      </div>
+
+      <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 12px; background: #27272a; color: #71717a; border: none; border-radius: 8px; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: all 0.2s;">Accept agreements to continue</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  
+  var btn = modal.querySelector('#welcome-dismiss-btn');
+  var checkbox = modal.querySelector('#welcome-terms-checkbox');
+
+  function updateLaunchState() {
+    if (checkbox.checked) {
+      btn.disabled = false;
+      btn.innerText = 'Launch Slate';
+      btn.style.background = '#ffffff';
+      btn.style.color = '#000000';
+      btn.style.cursor = 'pointer';
+    } else {
+      btn.disabled = true;
+      btn.innerText = 'Accept agreements to continue';
+      btn.style.background = '#27272a';
+      btn.style.color = '#71717a';
+      btn.style.cursor = 'not-allowed';
+    }
+  }
+
+  checkbox.addEventListener('change', updateLaunchState);
+  btn.onclick = function() {
+    if (!btn.disabled) {
+      modal.remove();
+      onAccept();
+    }
+  };
+}
+
+// ROUTING INITIATORS
+function launchMineral() { launchWithSpoof(CONFIG.mineral, false); }
+function launchSlate() {
+  showSlateModal(function() {
+    launchWithSpoof(CONFIG.slate, true); 
+  });
+}
+function launchMagma() { launchWithSpoof(CONFIG.magma, false); }
+</script>
+
+</body>
+</html>
