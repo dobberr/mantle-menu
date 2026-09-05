@@ -40,21 +40,21 @@
   const CONFIG = {
     // Hub URL, tried top to bottom until one responds.
     SOURCES: [
-      "https://raw.githubusercontent.com/USERNAME/mantle-hub/main/index.html",
-      "https://cdn.jsdelivr.net/gh/USERNAME/mantle-hub@main/index.html",
-      "https://raw.githack.com/USERNAME/mantle-hub/main/index.html",
-      "https://cdn.statically.io/gh/USERNAME/mantle-hub/main/index.html"
+      "https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html",
+      "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html",
+      "https://raw.githack.com/dobberr/mantle-menu/main/index.html",
+      "https://cdn.statically.io/gh/dobberr/mantle-menu/main/index.html"
     ],
     // Used as <base> so any RELATIVE asset in the hub resolves to a
     // host that serves correct MIME types (raw serves text/plain,
     // which breaks <script>/<link> hotlinking).
-    BASE_HREF: "https://cdn.jsdelivr.net/gh/USERNAME/mantle-hub@main/",
+    BASE_HREF: "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/",
     // "embed" = hub renders inside this tab (iframe).
     // "popup" = hub renders in a fullscreen about:blank window instead.
     MODE: "embed",
     // Offline fallback: last successful copy is stored in localStorage
     // and used if every source is unreachable (e.g. GitHub blocked).
-    CACHE_KEY: "mantle.hub.cache",
+    CACHE_KEY: "mantle.menu.cache",
     // Spoof applied to the launcher tab itself.
     SPOOF: [
       { title: "Google Docs",      icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" },
