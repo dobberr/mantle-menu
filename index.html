@@ -233,17 +233,20 @@ function keepSpoofed(d, spoof) {
   }, 500);
 }
 
-/* ============================ MINERAL ============================ */
-// Push your normal launcher files to the repo as-is — no placeholder
-// edits needed. The hub rewrites the bootstrap tag and assetsURI at
-// launch time, so every user gets your latest commit automatically.
+/* ============================================================
+   MINERAL — assembled at launch from dobberr/min
+   Push your NORMAL launcher files to the repo as-is (v2.1, v2.2...).
+   The hub fetches index.html + bootstrap.js, rewrites the bootstrap
+   tag and assetsURI at launch time, and inlines bootstrap — so every
+   user automatically gets your latest commit.
+   ============================================================ */
 const MINERAL_PAGE_BASES = [
   "https://raw.githubusercontent.com/dobberr/min/main/",
   "https://cdn.jsdelivr.net/gh/dobberr/min@main/",
   "https://raw.githack.com/dobberr/min/main/",
   "https://cdn.statically.io/gh/dobberr/min/main/"
 ];
-// assets.epw is ~28MB — jsDelivr/statically cap at 20MB, so only these:
+// assets.epw (~28MB) exceeds jsDelivr/statically's 20MB cap:
 const MINERAL_ASSET_BASES = [
   "https://raw.githubusercontent.com/dobberr/min/main/",
   "https://cdn.raw.githack.com/dobberr/min/main/"
@@ -257,13 +260,13 @@ async function fetchFirst(urls, ok) {
       if (!res.ok) throw new Error("HTTP " + res.status);
       const text = await res.text();
       if (ok && !ok(text)) throw new Error("Unexpected response from " + new URL(url).host);
-      return { text, url };
+      return text;
     } catch (e) { lastErr = e; }
   }
   throw lastErr || new Error("All Mineral mirrors unreachable");
 }
 
-// Probe asset mirrors with HEAD; reject HTML block pages schools serve with 200
+// HEAD-probe asset mirrors; reject HTML block pages served with 200
 async function pickAssetBase() {
   for (const b of MINERAL_ASSET_BASES) {
     try {
@@ -305,17 +308,17 @@ async function launchMineral() {
   d.open(); d.write(SPLASH_HTML); d.close();
 
   try {
-    const { text: page } = await fetchFirst(
+    const page = await fetchFirst(
       MINERAL_PAGE_BASES.map(b => b + "index.html"),
       t => /eaglercraftXOpts/.test(t)
     );
-    const boot = (await fetchFirst(
+    const boot = await fetchFirst(
       MINERAL_PAGE_BASES.map(b => b + "bootstrap.js"),
       t => t.length > 1000 && !/<html[\s>]/i.test(t)
-    )).text;
+    );
     const assetBase = await pickAssetBase();
 
-    // Surface uncaught JS errors on-screen (resource failures are ignored)
+    // Surface uncaught JS errors on-screen (resource failures ignored)
     const errorHook =
       '<script>window.addEventListener("error",function(e){if(!e.message)return;try{' +
       'var t=document.createElement("pre");t.style.cssText="position:fixed;left:8px;bottom:8px;' +
@@ -323,7 +326,9 @@ async function launchMineral() {
       'max-width:90vw;white-space:pre-wrap";t.textContent="Load error: "+e.message;' +
       'document.body.appendChild(t);}catch(_){}},true);</scr' + 'ipt>';
 
-    // Escape sequences that would terminate or corrupt an inline script
+    // Neutralize sequences that would break or corrupt an inline script
+    // (backslash forms are inert to the HTML parser but restore their
+    // original meaning when JS parses the string literals)
     const bootSrc = boot
       .replace(/<\/script/gi, "<\\/script")
       .replace(/<!--/g, "<\\!--");
@@ -333,13 +338,13 @@ async function launchMineral() {
 
     let html = page;
 
-    // 1) Swap the bootstrap tag IN PLACE (keeps execution order intact).
-    //    Matches __BOOTSTRAP__ placeholders AND a plain src="bootstrap.js",
-    //    so your un-edited launcher file works as-is. If neither tag is
-    //    found, prepend to <head> as a safety net.
+    // 1) Swap the bootstrap tag IN PLACE (preserves execution order).
+    //    Matches a __BOOTSTRAP__ placeholder OR a plain src="bootstrap.js",
+    //    so your un-edited launcher file works as-is. If neither is found,
+    //    prepend to <head> as a safety net.
     const bootTagRe = /<script[^>]*src=["']?(?:__BOOTSTRAP__|bootstrap\.js)["']?[^>]*>\s*<\/script>/i;
     if (bootTagRe.test(html)) {
-      html = html.replace(bootTagRe, () => errorHook + inlineBoot); // function replacer = no $ corruption
+      html = html.replace(bootTagRe, () => errorHook + inlineBoot); // function replacer: no $-pattern corruption
     } else {
       html = html.replace(/<head[^>]*>/i, m => m + errorHook + inlineBoot);
     }
@@ -349,8 +354,8 @@ async function launchMineral() {
     html = html.replace(/(assetsURI\s*:\s*)(["'])assets\.epw\2/i,
       (m, p1, q) => p1 + q + assetBase + "assets.epw" + q);
 
-    // 3) <base> catches everything else relative (favicon, background.jpg,
-    //    and even assetsURI if a future edit changes its formatting)
+    // 3) <base> catches any other relative path (favicon, background.jpg)
+    //    and even assetsURI if a future edit changes its formatting
     if (!/<base\s/i.test(html))
       html = html.replace(/<head[^>]*>/i, m => m + '<base href="' + assetBase + '">');
 
@@ -361,6 +366,7 @@ async function launchMineral() {
   }
 }
 /* ========================== END MINERAL ========================== */
+
 /* ============================================================
    SLATE / MAGMA — unchanged flow
    ============================================================ */
