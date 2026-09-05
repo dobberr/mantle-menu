@@ -194,6 +194,7 @@
    CONFIG
    ============================================================ */
 const CONFIG = {
+  mineral: "https://dobberr.github.io/min/",
   slate: "https://slate-mantle.laneesports.com",
   magma: "https://magmafrontend-mantle.laneesports.com/"
 };
@@ -234,141 +235,7 @@ function keepSpoofed(d, spoof) {
 }
 
 /* ============================================================
-   MINERAL — assembled at launch from dobberr/min
-   Push your NORMAL launcher files to the repo as-is (v2.1, v2.2...).
-   The hub fetches index.html + bootstrap.js, rewrites the bootstrap
-   tag and assetsURI at launch time, and inlines bootstrap — so every
-   user automatically gets your latest commit.
-   ============================================================ */
-const MINERAL_PAGE_BASES = [
-  "https://raw.githubusercontent.com/dobberr/min/main/",
-  "https://cdn.jsdelivr.net/gh/dobberr/min@main/",
-  "https://raw.githack.com/dobberr/min/main/",
-  "https://cdn.statically.io/gh/dobberr/min/main/"
-];
-// assets.epw (~28MB) exceeds jsDelivr/statically's 20MB cap:
-const MINERAL_ASSET_BASES = [
-  "https://raw.githubusercontent.com/dobberr/min/main/",
-  "https://cdn.raw.githack.com/dobberr/min/main/"
-];
-
-async function fetchFirst(urls, ok) {
-  let lastErr;
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { cache: "no-cache" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const text = await res.text();
-      if (ok && !ok(text)) throw new Error("Unexpected response from " + new URL(url).host);
-      return text;
-    } catch (e) { lastErr = e; }
-  }
-  throw lastErr || new Error("All Mineral mirrors unreachable");
-}
-
-// HEAD-probe asset mirrors; reject HTML block pages served with 200
-async function pickAssetBase() {
-  for (const b of MINERAL_ASSET_BASES) {
-    try {
-      const r = await fetch(b + "assets.epw", { method: "HEAD", cache: "no-store" });
-      const ct = (r.headers.get("content-type") || "").toLowerCase();
-      if (r.ok && ct.indexOf("text/html") === -1) return b;
-    } catch (_) {}
-  }
-  return MINERAL_ASSET_BASES[0]; // let the game's own loader surface any failure
-}
-
-const SPLASH_HTML = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-  html,body{height:100%;margin:0;background:#030303;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:16px;font-family:Arial,sans-serif}
-  .ring{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);
-    border-top-color:rgba(255,255,255,0.55);animation:spin 0.8s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  p{color:#71717a;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0}
-</style></head><body><div class="ring"></div><p>Loading Mineral</p></body></html>`;
-
-function mineralErrorHtml(reason) {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
-  <body style="height:100vh;margin:0;background:#030303;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif">
-    <div style="text-align:center;color:#a1a1aa;max-width:420px;padding:20px">
-      <h2 style="color:#fafafa;font-size:16px;margin:0 0 8px">Mineral couldn't load</h2>
-      <p style="font-size:13px;line-height:1.6;margin:0 0 6px">${reason}</p>
-      <p style="font-size:12px;color:#71717a;margin:0">Close this window and relaunch from Mantle.</p>
-    </div>
-  </body></html>`;
-}
-
-async function launchMineral() {
-  const win = window.open("about:blank", "_blank", WINDOW_FEATURES);
-  if (!win) { alert("Please allow popups."); return; }
-
-  const d = win.document;
-  const spoof = pickSpoof();
-  keepSpoofed(d, spoof);
-  d.open(); d.write(SPLASH_HTML); d.close();
-
-  try {
-    const page = await fetchFirst(
-      MINERAL_PAGE_BASES.map(b => b + "index.html"),
-      t => /eaglercraftXOpts/.test(t)
-    );
-    const boot = await fetchFirst(
-      MINERAL_PAGE_BASES.map(b => b + "bootstrap.js"),
-      t => t.length > 1000 && !/<html[\s>]/i.test(t)
-    );
-    const assetBase = await pickAssetBase();
-
-    // Surface uncaught JS errors on-screen (resource failures ignored)
-    const errorHook =
-      '<script>window.addEventListener("error",function(e){if(!e.message)return;try{' +
-      'var t=document.createElement("pre");t.style.cssText="position:fixed;left:8px;bottom:8px;' +
-      'z-index:99999;background:rgba(0,0,0,.85);color:#f87171;font:11px monospace;padding:8px;' +
-      'max-width:90vw;white-space:pre-wrap";t.textContent="Load error: "+e.message;' +
-      'document.body.appendChild(t);}catch(_){}},true);</scr' + 'ipt>';
-
-    // Neutralize sequences that would break or corrupt an inline script
-    // (backslash forms are inert to the HTML parser but restore their
-    // original meaning when JS parses the string literals)
-    const bootSrc = boot
-      .replace(/<\/script/gi, "<\\/script")
-      .replace(/<!--/g, "<\\!--");
-    const inlineBoot =
-      '<script type="text/javascript">\n' + bootSrc +
-      '\nconsole.log("[Mantle] bootstrap inlined OK");\n</scr' + 'ipt>';
-
-    let html = page;
-
-    // 1) Swap the bootstrap tag IN PLACE (preserves execution order).
-    //    Matches a __BOOTSTRAP__ placeholder OR a plain src="bootstrap.js",
-    //    so your un-edited launcher file works as-is. If neither is found,
-    //    prepend to <head> as a safety net.
-    const bootTagRe = /<script[^>]*src=["']?(?:__BOOTSTRAP__|bootstrap\.js)["']?[^>]*>\s*<\/script>/i;
-    if (bootTagRe.test(html)) {
-      html = html.replace(bootTagRe, () => errorHook + inlineBoot); // function replacer: no $-pattern corruption
-    } else {
-      html = html.replace(/<head[^>]*>/i, m => m + errorHook + inlineBoot);
-    }
-
-    // 2) Point assetsURI at the chosen mirror (placeholder or relative form)
-    html = html.split("__ASSETS__").join(assetBase + "assets.epw");
-    html = html.replace(/(assetsURI\s*:\s*)(["'])assets\.epw\2/i,
-      (m, p1, q) => p1 + q + assetBase + "assets.epw" + q);
-
-    // 3) <base> catches any other relative path (favicon, background.jpg)
-    //    and even assetsURI if a future edit changes its formatting
-    if (!/<base\s/i.test(html))
-      html = html.replace(/<head[^>]*>/i, m => m + '<base href="' + assetBase + '">');
-
-    d.open(); d.write(html); d.close();
-    applySpoof(d, spoof);
-  } catch (e) {
-    d.open(); d.write(mineralErrorHtml(e && e.message ? e.message : String(e))); d.close();
-  }
-}
-/* ========================== END MINERAL ========================== */
-
-/* ============================================================
-   SLATE / MAGMA — unchanged flow
+   LAUNCHERS — popup + iframe flow (as it always was)
    ============================================================ */
 function launchWithSpoof(url, showNoticeBanner = false) {
   var win = window.open("about:blank", "_blank", WINDOW_FEATURES);
@@ -547,6 +414,8 @@ function showSlateModal(onAccept) {
   };
 }
 
+// ROUTING INITIATORS
+function launchMineral() { launchWithSpoof(CONFIG.mineral, false); }
 function launchSlate() {
   showSlateModal(function() {
     launchWithSpoof(CONFIG.slate, true);
