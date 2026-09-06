@@ -356,10 +356,8 @@
 /* ============================================================
    ROUTING LAYER — the menu contains NO app URLs. They live in
    r.txt in a separate, bland repo, fetched at launch through a
-   mirror chain and cached as an offline fallback.
-   Verify the repo by opening source #2 in a browser tab: it must
-   show a line starting with window.MANTLE_ROUTES=
-   If your repo/name differs, edit the four URLs below.
+   mirror chain, JSON-parsed (no eval — CSP-safe), and cached as
+   an offline fallback.
    ============================================================ */
 const ROUTE_SOURCES = [
   "https://cdn.jsdelivr.net/gh/dobberr/cfg@main/r.txt",
@@ -367,10 +365,27 @@ const ROUTE_SOURCES = [
   "https://raw.githack.com/dobberr/cfg/main/r.txt",
   "https://cdn.statically.io/gh/dobberr/cfg/main/r.txt"
 ];
-const ROUTES_CACHE = "mantle.routes.cache.v1";
+const ROUTES_CACHE = "mantle.routes.cache.v2";
 
+let routesData = null;   // parsed routes object
 let routesPromise = null;
+
+// Extracts the JSON object from "window.MANTLE_ROUTES={...};" and
+// parses it safely. Throws on malformed files.
+function parseRoutes(text) {
+  const s = text.indexOf("{");
+  const e = text.lastIndexOf("}");
+  if (s === -1 || e <= s) throw new Error("Malformed routing file");
+  const obj = JSON.parse(text.slice(s, e + 1));
+  for (const k in obj) {
+    if (typeof obj[k] !== "string" || !/^https:\/\//.test(obj[k]))
+      throw new Error("Routing file has an invalid entry: " + k);
+  }
+  return obj;
+}
+
 function getRoutes() {
+  if (routesData) return Promise.resolve(routesData);
   if (routesPromise) return routesPromise;
   routesPromise = (async () => {
     for (const url of ROUTE_SOURCES) {
@@ -378,11 +393,12 @@ function getRoutes() {
         const res = await fetch(url, { cache: "no-cache" });
         if (!res.ok) throw new Error("HTTP " + res.status);
         const text = await res.text();
-        // Fingerprint: rejects school block pages served with 200
         if (text.length < 40 || !/MANTLE_ROUTES/.test(text)) throw new Error("Unexpected response");
-        console.info("[Mantle] routes served from " + new URL(url).host);
+        const parsed = parseRoutes(text); // throws if malformed — never caches bad data
+        routesData = parsed;
         try { localStorage.setItem(ROUTES_CACHE, text); } catch (_) {}
-        return text;
+        console.info("[Mantle] routes served from " + new URL(url).host);
+        return parsed;
       } catch (e) {
         console.warn("[Mantle] route mirror failed: " + url + " (" + (e && e.message ? e.message : e) + ")");
       }
@@ -391,12 +407,15 @@ function getRoutes() {
     try {
       const cached = localStorage.getItem(ROUTES_CACHE);
       if (cached && /MANTLE_ROUTES/.test(cached)) {
+        const parsed = parseRoutes(cached);
+        routesData = parsed;
         console.warn("[Mantle] all route mirrors unreachable — using cached copy");
-        return cached;
+        return parsed;
       }
     } catch (_) {}
     throw new Error("Routing file unreachable");
   })().catch(e => { routesPromise = null; throw e; });
+  return routesPromise;
 }
 getRoutes(); // prefetch on boot so clicks feel instant
 
@@ -444,19 +463,19 @@ function closeModal(id) {
 }
 
 /* ============================================================
-   LAUNCHERS — defined first; routes resolved at click time
+   LAUNCHERS — routes resolved from the parsed object directly
    ============================================================ */
 async function resolveRoute(app) {
+  let routes;
   try {
-    await getRoutes();
+    routes = await getRoutes();
   } catch (e) {
     alert("Mantle couldn't load its routing file from any mirror.\n\n" +
           "Check your connection and try again. Details are in the console (F12).");
     return null;
   }
-  var routes = window.MANTLE_ROUTES || {};
   if (!routes[app]) {
-    alert("Mantle's routing file loaded but doesn't include this app.\n\n" +
+    alert("Mantle's routing file doesn't include this app.\n\n" +
           "Check r.txt in the routing repo includes a \"" + app + "\" entry.");
     return null;
   }
@@ -642,7 +661,7 @@ function showSlateModal(onAccept) {
   };
 }
 
-// ROUTING INITIATORS — each resolves its URL through the routing layer
+// ROUTING INITIATORS
 async function launchMineral() {
   const url = await resolveRoute("mineral");
   if (url) launchWithSpoof(url, false);
@@ -658,7 +677,7 @@ async function launchMagma() {
   if (url) launchWithSpoof(url, false);
 }
 
-// Listener wiring — no inline onclick, no "not defined" failures
+// Listener wiring — no inline onclick
 document.querySelectorAll("[data-launch]").forEach(function (btn) {
   btn.addEventListener("click", function () {
     var map = { mineral: launchMineral, slate: launchSlate, magma: launchMagma };
@@ -669,7 +688,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v3.3 (routed)");
+console.info("[Mantle] hub ready · v3.4 (routed)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
