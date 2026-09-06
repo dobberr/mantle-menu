@@ -354,10 +354,15 @@
 "use strict";
 
 /* ============================================================
-   ROUTING LAYER — the menu contains NO app URLs. They live in
-   r.txt in a separate, bland repo, fetched at launch through a
-   mirror chain, JSON-parsed (no eval — CSP-safe), and cached as
-   an offline fallback.
+   ROUTING LAYER
+   - The menu contains NO app URLs, in any form.
+   - r.txt (separate bland repo) stores each URL base64-encoded,
+     so the routing file is opaque at rest: in the repo, in
+     transit, in DevTools' response viewer, and in localStorage.
+   - Routes are fetched LAZILY: opening/inspecting the menu
+     triggers no routing request at all. Only an actual launch
+     does — and at that moment the app's own domain necessarily
+     appears in the Network tab. That part is not hideable.
    ============================================================ */
 const ROUTE_SOURCES = [
   "https://cdn.jsdelivr.net/gh/dobberr/cfg@main/r.txt",
@@ -365,23 +370,28 @@ const ROUTE_SOURCES = [
   "https://raw.githack.com/dobberr/cfg/main/r.txt",
   "https://cdn.statically.io/gh/dobberr/cfg/main/r.txt"
 ];
-const ROUTES_CACHE = "mantle.routes.cache.v2";
+const ROUTES_CACHE = "mantle.routes.cache.v3";
 
-let routesData = null;   // parsed routes object
+let routesData = null;
 let routesPromise = null;
 
-// Extracts the JSON object from "window.MANTLE_ROUTES={...};" and
-// parses it safely. Throws on malformed files.
+// Extracts the JSON object from the file, decodes each base64
+// value, and validates it is an https URL. Throws on anything
+// malformed — malformed data is never cached.
 function parseRoutes(text) {
   const s = text.indexOf("{");
   const e = text.lastIndexOf("}");
   if (s === -1 || e <= s) throw new Error("Malformed routing file");
-  const obj = JSON.parse(text.slice(s, e + 1));
-  for (const k in obj) {
-    if (typeof obj[k] !== "string" || !/^https:\/\//.test(obj[k]))
-      throw new Error("Routing file has an invalid entry: " + k);
+  const raw = JSON.parse(text.slice(s, e + 1));
+  const out = {};
+  for (const k in raw) {
+    let url;
+    try { url = atob(raw[k]); } catch (_) { throw new Error("Routing entry not decodable: " + k); }
+    if (!/^https:\/\//.test(url)) throw new Error("Routing entry invalid: " + k);
+    out[k] = url;
   }
-  return obj;
+  if (!Object.keys(out).length) throw new Error("Routing file empty");
+  return out;
 }
 
 function getRoutes() {
@@ -394,30 +404,26 @@ function getRoutes() {
         if (!res.ok) throw new Error("HTTP " + res.status);
         const text = await res.text();
         if (text.length < 40 || !/MANTLE_ROUTES/.test(text)) throw new Error("Unexpected response");
-        const parsed = parseRoutes(text); // throws if malformed — never caches bad data
+        const parsed = parseRoutes(text);
         routesData = parsed;
         try { localStorage.setItem(ROUTES_CACHE, text); } catch (_) {}
-        console.info("[Mantle] routes served from " + new URL(url).host);
         return parsed;
       } catch (e) {
-        console.warn("[Mantle] route mirror failed: " + url + " (" + (e && e.message ? e.message : e) + ")");
+        console.warn("[Mantle] route source failed (" + (e && e.message ? e.message : e) + ")");
       }
     }
-    // Every mirror unreachable: last cached copy keeps launches working
+    // Every source unreachable: last cached copy keeps launches working
     try {
       const cached = localStorage.getItem(ROUTES_CACHE);
       if (cached && /MANTLE_ROUTES/.test(cached)) {
-        const parsed = parseRoutes(cached);
-        routesData = parsed;
-        console.warn("[Mantle] all route mirrors unreachable — using cached copy");
-        return parsed;
+        routesData = parseRoutes(cached);
+        return routesData;
       }
     } catch (_) {}
     throw new Error("Routing file unreachable");
   })().catch(e => { routesPromise = null; throw e; });
   return routesPromise;
 }
-getRoutes(); // prefetch on boot so clicks feel instant
 
 /* ============================================================
    POPUP SPOOFING
@@ -463,14 +469,14 @@ function closeModal(id) {
 }
 
 /* ============================================================
-   LAUNCHERS — routes resolved from the parsed object directly
+   LAUNCHERS — routes fetched on demand, decoded in memory only
    ============================================================ */
 async function resolveRoute(app) {
   let routes;
   try {
     routes = await getRoutes();
   } catch (e) {
-    alert("Mantle couldn't load its routing file from any mirror.\n\n" +
+    alert("Mantle couldn't load its routing file from any source.\n\n" +
           "Check your connection and try again. Details are in the console (F12).");
     return null;
   }
@@ -684,11 +690,14 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
     var fn = map[btn.getAttribute("data-launch")];
     if (fn) fn();
   });
+  // Pre-warm on first press of a launch button: shaves the fetch
+  // latency off the click, without ever fetching for idle viewers
+  btn.addEventListener("pointerdown", function () { getRoutes(); }, { once: true });
 });
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v3.4 (routed)");
+console.info("[Mantle] hub ready · v3.5 (routed, lazy)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
