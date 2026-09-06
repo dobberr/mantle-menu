@@ -354,18 +354,18 @@
 "use strict";
 
 /* ============================================================
-   ROUTING LAYER — the menu contains NO app URLs. They live in a
-   tiny routing file in a separate repo, fetched at launch through
-   a mirror chain and cached for offline resilience. Sources below
-   are base64 so the menu source reads clean.
-   To regenerate after renaming the repo/file, run in a console:
-   btoa("https://...your-mirror-url.../r.txt")
+   ROUTING LAYER — the menu contains NO app URLs. They live in
+   r.txt in a separate, bland repo, fetched at launch through a
+   mirror chain and cached as an offline fallback.
+   Verify the repo by opening source #2 in a browser tab: it must
+   show a line starting with window.MANTLE_ROUTES=
+   If your repo/name differs, edit the four URLs below.
    ============================================================ */
 const ROUTE_SOURCES = [
-  "aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2RvYmJlci9jZmdAbWFpbi9yLnR4dA==",
-  "aHR0cHM6Ly9yYXcuZ2l0aHViLmNvbnRlbnQuY29tL2RvYmJlci9jZmcvbWFpbi9yLnR4dA==",
-  "aHR0cHM6Ly9yYXcuZ2l0aGFjay5jb20vZG9iYmVyL2NmZy9tYWluL3IudHh0",
-  "aHR0cHM6Ly9jZG4uc3RhdGljYWxseS5pby9naC9kb2JiZXIvY2ZnL21haW4vci50eHQ="
+  "https://cdn.jsdelivr.net/gh/dobberr/cfg@main/r.txt",
+  "https://raw.githubusercontent.com/dobberr/cfg/main/r.txt",
+  "https://raw.githack.com/dobberr/cfg/main/r.txt",
+  "https://cdn.statically.io/gh/dobberr/cfg/main/r.txt"
 ];
 const ROUTES_CACHE = "mantle.routes.cache.v1";
 
@@ -373,22 +373,27 @@ let routesPromise = null;
 function getRoutes() {
   if (routesPromise) return routesPromise;
   routesPromise = (async () => {
-    for (const b64 of ROUTE_SOURCES) {
+    for (const url of ROUTE_SOURCES) {
       try {
-        const url = atob(b64);
         const res = await fetch(url, { cache: "no-cache" });
         if (!res.ok) throw new Error("HTTP " + res.status);
         const text = await res.text();
         // Fingerprint: rejects school block pages served with 200
         if (text.length < 40 || !/MANTLE_ROUTES/.test(text)) throw new Error("Unexpected response");
+        console.info("[Mantle] routes served from " + new URL(url).host);
         try { localStorage.setItem(ROUTES_CACHE, text); } catch (_) {}
         return text;
-      } catch (_) { /* try next mirror */ }
+      } catch (e) {
+        console.warn("[Mantle] route mirror failed: " + url + " (" + (e && e.message ? e.message : e) + ")");
+      }
     }
     // Every mirror unreachable: last cached copy keeps launches working
     try {
       const cached = localStorage.getItem(ROUTES_CACHE);
-      if (cached && /MANTLE_ROUTES/.test(cached)) return cached;
+      if (cached && /MANTLE_ROUTES/.test(cached)) {
+        console.warn("[Mantle] all route mirrors unreachable — using cached copy");
+        return cached;
+      }
     } catch (_) {}
     throw new Error("Routing file unreachable");
   })().catch(e => { routesPromise = null; throw e; });
@@ -445,12 +450,14 @@ async function resolveRoute(app) {
   try {
     await getRoutes();
   } catch (e) {
-    alert("Mantle couldn't reach its servers right now.\n\nCheck your connection and try again.");
+    alert("Mantle couldn't load its routing file from any mirror.\n\n" +
+          "Check your connection and try again. Details are in the console (F12).");
     return null;
   }
   var routes = window.MANTLE_ROUTES || {};
   if (!routes[app]) {
-    alert("Mantle's routing file doesn't include this app. It may be out of date.");
+    alert("Mantle's routing file loaded but doesn't include this app.\n\n" +
+          "Check r.txt in the routing repo includes a \"" + app + "\" entry.");
     return null;
   }
   return routes[app];
@@ -662,7 +669,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v3.2 (routed)");
+console.info("[Mantle] hub ready · v3.3 (routed)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
