@@ -497,6 +497,15 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000;overflow:hidden;width:100vw;height:100vh;"></body></html>`);
   d.close();
 
+  // Native "Leave site?" confirmation when this popup is closed or
+  // reloaded. Chrome/Edge only arm it after the user interacts with
+  // the window (clicking inside the app counts); the message text is
+  // browser-controlled and cannot be customized.
+  d.addEventListener("beforeunload", function (e) {
+    e.preventDefault();
+    e.returnValue = ""; // required for Chrome/Edge to show the dialog
+  });
+
   keepSpoofed(d, pickSpoof());
 
   var frame = d.createElement('iframe');
@@ -697,7 +706,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v3.5 (routed, lazy)");
+console.info("[Mantle] hub ready · v3.6 (routed, lazy, close-guard)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
