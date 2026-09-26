@@ -382,8 +382,8 @@
 
 /* ============================================================
    TAGLINES — rotating typewriter line under the logo.
-   Add/edit freely; the shuffle guarantees no repeats until the
-   whole pool has been shown.
+   Each pick is fully random (never the same line twice in a row).
+   Add/edit freely; no other changes needed.
    ============================================================ */
 const TAGLINES = [
   "Unblocked games for when the teacher isn't looking",
@@ -427,21 +427,22 @@ const TAGLINES = [
 (function runTaglines() {
   const el = document.getElementById("tagText");
   const p = document.getElementById("tagline");
-  const caret = document.getElementById("tagCaret");
   if (!el || !p || !TAGLINES.length) return;
 
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Fisher-Yates: no repeats until the pool is exhausted
-  const order = TAGLINES.slice();
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const t = order[i]; order[i] = order[j]; order[j] = t;
+  // Fully random pick, just never the same line twice in a row
+  let lastIdx = -1;
+  function pick() {
+    let i;
+    do { i = Math.floor(Math.random() * TAGLINES.length); } while (i === lastIdx && TAGLINES.length > 1);
+    lastIdx = i;
+    return TAGLINES[i];
   }
-  let idx = 0;
 
-  // Longer lines type faster; clamp keeps very short lines readable
-  const speedFor = s => Math.max(14, Math.min(55, Math.round(2400 / Math.max(1, s.length))));
+  // Slower typing: speed scales with line length, floor raised so
+  // even short lines type at a relaxed pace
+  const speedFor = s => Math.max(24, Math.min(62, Math.round(1700 / Math.max(1, s.length))));
 
   // Defer every step while the tab is hidden (background tabs shouldn't churn)
   const whenVisible = cb => {
@@ -471,8 +472,7 @@ const TAGLINES = [
       if (pos > 0) {
         setTimeout(() => del(text, pos - 1), 11);
       } else {
-        idx = (idx + 1) % order.length;
-        const next = order[idx];
+        const next = pick();
         setTimeout(() => whenVisible(() => type(next, 0, speedFor(next))), 380);
       }
     });
@@ -481,17 +481,20 @@ const TAGLINES = [
   if (reduce) {
     // Calm mode: no typing, caret hidden, quiet swap every 6.5s
     p.classList.add("swap");
-    el.textContent = order[0];
+    el.textContent = TAGLINES[0];
+    lastIdx = 0;
     setInterval(() => {
       if (document.hidden) return;
-      idx = (idx + 1) % order.length;
-      el.textContent = order[idx];
+      el.textContent = pick();
     }, 6500);
     return;
   }
 
   // Start once the logo's entrance animation has settled
-  setTimeout(() => type(order[0], 0, speedFor(order[0])), 900);
+  setTimeout(() => {
+    const first = pick();
+    type(first, 0, speedFor(first));
+  }, 900);
 })();
 
 /* ============================================================
@@ -858,7 +861,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v3.8 (routed, lazy, close-guard, taglines)");
+console.info("[Mantle] hub ready · v3.9 (routed, lazy, close-guard, taglines)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
