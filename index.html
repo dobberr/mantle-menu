@@ -87,10 +87,22 @@
     user-select: none;
     -webkit-user-drag: none;
   }
+
+  /* Tagline: typewriter target. min-height keeps layout steady between
+     short and long lines. */
   header p {
     margin: 0 auto; max-width: 44ch;
     font-size: 13.5px; font-weight: 400; letter-spacing: 0.01em;
     color: var(--text-2);
+    min-height: 1.6em;
+  }
+  .caret {
+    display: inline-block;
+    width: 2px; height: 1em;
+    margin-left: 2px;
+    vertical-align: -0.15em;
+    background: var(--accent);
+    border-radius: 1px;
   }
 
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -247,9 +259,24 @@
       from { opacity: 1; transform: none; filter: blur(0); }
       to   { opacity: 0; transform: translateY(6px) scale(0.97); filter: blur(4px); }
     }
+
+    /* Tagline motion: soft blink while idle, steady while typing,
+       blur-slide between quotes */
+    .caret { animation: caretBlink 1.15s ease-in-out infinite; }
+    header p.typing .caret { animation: none; opacity: 1; }
+    header p {
+      transition: opacity 0.18s var(--ease-out), transform 0.18s var(--ease-out), filter 0.18s var(--ease-out);
+    }
+    header p.out { opacity: 0; transform: translateY(4px); filter: blur(2px); }
+  }
+  @keyframes caretBlink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.1; }
   }
   @media (prefers-reduced-motion: reduce) {
     .cell, .go, .go svg, .pill, .cell::before, .cell::after { transition: none; }
+    .caret { animation: none; }
+    header p.swap .caret { display: none; }
     .rise { opacity: 1; animation: none; }
   }
 
@@ -283,7 +310,7 @@
   <main>
     <header class="rise" style="--delay:0s">
       <img src="https://mantleunblocked.github.io/assets/full%20logo.png" alt="Mantle" draggable="false">
-      <p>A collection of web apps and utilities built for heavily networked environments like schools. Access everything you need from one unified workspace.</p>
+      <p id="tagline"><span id="tagText">A collection of web apps and utilities built for heavily networked environments like schools.</span><span class="caret" id="tagCaret" aria-hidden="true"></span></p>
     </header>
 
     <section class="grid" aria-label="Applications">
@@ -352,6 +379,120 @@
 
 <script>
 "use strict";
+
+/* ============================================================
+   TAGLINES — rotating typewriter line under the logo.
+   Add/edit freely; the shuffle guarantees no repeats until the
+   whole pool has been shown.
+   ============================================================ */
+const TAGLINES = [
+  "Unblocked games for when the teacher isn't looking",
+  "Your favorite games, all in one place... unlike your grades",
+  "The ultimate hub for professional procrastinators",
+  "Play now, learn never",
+  "Better than doing homework. Trust me, I checked.",
+  "Teacher won't even notice. Keep that alt-tab ready.",
+  "Your #1 source for unblocked lessons and bad life choices",
+  "Game on, or whatever the kids say these days",
+  "Chat, is this real?",
+  "People think you actually learn on here?",
+  "If anyone asks, this is a research project",
+  "Hopefully your teacher doesn't check browser history",
+  "If the site crashes, it's actually a feature",
+  "The code is held together by hopes and prayers",
+  "If you find a bug, just ignore it and keep playing",
+  "This site is 100% safe. I promise.",
+  "Heyyyyy, this isn't your math homework",
+  "My lawyer has advised me not to finish this senten—",
+  "I can see your IP (that's a joke, please don't sue me)",
+  "You miss 95% of the shots you don't take",
+  "95% of gamblers quit right before they win",
+  "Math class is boring. Why do you think this exists?",
+  "Work is overrated",
+  "billions must learn",
+  "guess what? chicken butt",
+  "Tell your teacher I said wsg",
+  "Don't tell my mom I made this",
+  "Might delete later, idk",
+  "I think, therefore I am",
+  "Is summer over already?",
+  "lowkey just better",
+  "To be ballin', you gotta b-all-in",
+  "Check out all these amazing lessons (none are actually lessons)",
+  "Ctrl+Shift+T reopens your last closed tab. You're welcome.",
+  "What if we kissed at the Mantle loading screen? Haha jk... unless?",
+  "Banana"
+];
+
+(function runTaglines() {
+  const el = document.getElementById("tagText");
+  const p = document.getElementById("tagline");
+  const caret = document.getElementById("tagCaret");
+  if (!el || !p || !TAGLINES.length) return;
+
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Fisher-Yates: no repeats until the pool is exhausted
+  const order = TAGLINES.slice();
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = order[i]; order[i] = order[j]; order[j] = t;
+  }
+  let idx = 0;
+
+  // Longer lines type faster; clamp keeps very short lines readable
+  const speedFor = s => Math.max(14, Math.min(55, Math.round(2400 / Math.max(1, s.length))));
+
+  // Defer every step while the tab is hidden (background tabs shouldn't churn)
+  const whenVisible = cb => {
+    if (!document.hidden) return cb();
+    const iv = setInterval(() => { if (!document.hidden) { clearInterval(iv); cb(); } }, 300);
+  };
+
+  function type(text, pos, delay) {
+    whenVisible(() => {
+      p.classList.remove("out");
+      p.classList.add("typing");
+      el.textContent = text.slice(0, pos);
+      if (pos < text.length) {
+        // per-char jitter: typewriter feel without mechanical rhythm
+        setTimeout(() => type(text, pos + 1, delay), delay + Math.random() * delay * 0.6);
+      } else {
+        p.classList.remove("typing");
+        setTimeout(() => whenVisible(() => del(text, text.length)), 2400);
+      }
+    });
+  }
+
+  function del(text, pos) {
+    whenVisible(() => {
+      p.classList.add("out");
+      el.textContent = text.slice(0, pos);
+      if (pos > 0) {
+        setTimeout(() => del(text, pos - 1), 11);
+      } else {
+        idx = (idx + 1) % order.length;
+        const next = order[idx];
+        setTimeout(() => whenVisible(() => type(next, 0, speedFor(next))), 380);
+      }
+    });
+  }
+
+  if (reduce) {
+    // Calm mode: no typing, caret hidden, quiet swap every 6.5s
+    p.classList.add("swap");
+    el.textContent = order[0];
+    setInterval(() => {
+      if (document.hidden) return;
+      idx = (idx + 1) % order.length;
+      el.textContent = order[idx];
+    }, 6500);
+    return;
+  }
+
+  // Start once the logo's entrance animation has settled
+  setTimeout(() => type(order[0], 0, speedFor(order[0])), 900);
+})();
 
 /* ============================================================
    ROUTING LAYER
@@ -457,6 +598,23 @@ function keepSpoofed(d, spoof) {
 }
 
 /* ============================================================
+   CLOSE GUARD — native "Leave site?" dialog on close/reload.
+   CRITICAL: beforeunload fires at the WINDOW, not the document —
+   the listener must be registered on the window object itself.
+   Chrome/Edge only arm the dialog after the user interacts with
+   the window (a click inside the app iframe counts); the dialog
+   text is browser-controlled and cannot be customized.
+   ============================================================ */
+function armCloseGuard(win) {
+  var guard = function (e) {
+    e.preventDefault();     // modern standard-compliant path
+    e.returnValue = "";     // legacy path Chrome/Edge/Firefox require
+  };
+  win.addEventListener("beforeunload", guard);
+  win.onbeforeunload = guard;
+}
+
+/* ============================================================
    MODAL CHOREOGRAPHY
    ============================================================ */
 function closeModal(id) {
@@ -497,14 +655,8 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000;overflow:hidden;width:100vw;height:100vh;"></body></html>`);
   d.close();
 
-  // Native "Leave site?" confirmation when this popup is closed or
-  // reloaded. Chrome/Edge only arm it after the user interacts with
-  // the window (clicking inside the app counts); the message text is
-  // browser-controlled and cannot be customized.
-  d.addEventListener("beforeunload", function (e) {
-    e.preventDefault();
-    e.returnValue = ""; // required for Chrome/Edge to show the dialog
-  });
+  // Register on the WINDOW — this is what makes the guard actually fire
+  armCloseGuard(win);
 
   keepSpoofed(d, pickSpoof());
 
@@ -706,7 +858,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v3.6 (routed, lazy, close-guard)");
+console.info("[Mantle] hub ready · v3.8 (routed, lazy, close-guard, taglines)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
