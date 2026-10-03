@@ -828,6 +828,135 @@ async function launchMineral() {
   d.open(); d.write(mineralErrorHtml("Every download mirror was unreachable on this network.")); d.close();
 }
 
+function openSlateLegalDocs() {
+  var existingModal = document.getElementById('slate-privacy-modal');
+  if (existingModal) existingModal.remove();
+
+  var modal = document.createElement('div');
+  modal.id = "slate-privacy-modal";
+  modal.className = "modal-backdrop";
+  modal.style = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', Arial, sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
+  modal.innerHTML = `
+    <div class="modal-card" style="background: #0e0e13; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 22px; width: 100%; max-width: 600px; color: #f4f4f5; box-shadow: 0 24px 60px rgba(0,0,0,0.55); max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px;">
+        <h2 style="font-size: 18px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; margin: 0;">Slate Legal Agreements</h2>
+        <button onclick="closeModal('slate-privacy-modal')" style="background: transparent; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
+      </div>
+
+      <div style="font-size: 13px; line-height: 1.6; color: #a1a1aa;">
+        <p style="margin-bottom: 16px;">Last Updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p>
+
+        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 24px 0 10px 0; border-left: 2px solid #22d3ee; padding-left: 8px;">Part 1: Terms of Service</h3>
+
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.1 Acceptance and Capacity</h4>
+        <p style="margin-bottom: 12px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p>
+
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.2 Acceptable Use</h4>
+        <p style="margin-bottom: 12px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p>
+
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.3 Limitation of Liability</h4>
+        <p style="margin-bottom: 12px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p>
+
+        <div style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px; padding: 14px; margin-bottom: 24px;">
+          <h4 style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #ef4444; margin: 0 0 6px 0;">1.4 Slate [UNCENSORED] Tier Agreement</h4>
+          <p style="font-size: 12px; color: #fca5a5; margin: 0; line-height: 1.5;">
+            Registered users executing queries via the invite-only <code>Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters; therefore, the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.
+          </p>
+        </div>
+
+        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 0 0 10px 0; border-left: 2px solid #22d3ee; padding-left: 8px;">Part 2: Privacy Policy</h3>
+        <p style="margin-bottom: 12px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p>
+
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">2.1 Data We Collect</h4>
+        <ul style="margin: 0 0 14px 0; padding-left: 20px; list-style-type: disc;">
+          <li style="margin-bottom: 4px;">Account username profile data</li>
+          <li style="margin-bottom: 4px;">Authentication email address</li>
+          <li style="margin-bottom: 4px;">Last active system timestamps</li>
+          <li style="margin-bottom: 4px;">Account initialization timestamps</li>
+          <li style="margin-bottom: 4px;">Cumulative totals of prompts sent and token payloads utilized</li>
+        </ul>
+
+      </div>
+
+      <button onclick="closeModal('slate-privacy-modal')" style="width: 100%; margin-top: 16px; padding: 12px; background: #ffffff; color: #000000; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 13px;">Close Document</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function showSlateModal(onAccept) {
+  var existingModal = document.getElementById('slate-welcome-modal');
+  if (existingModal) existingModal.remove();
+
+  var slateLogo = "https://mantleunblocked.github.io/assets/Slate/Slate.png";
+  var modal = document.createElement('div');
+  modal.id = "slate-welcome-modal";
+  modal.className = "modal-backdrop";
+  modal.style = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', Arial, sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
+  modal.innerHTML = `
+    <div class="modal-card" style="background: #0e0e13; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 22px; width: 100%; max-width: 480px; color: #f4f4f5; box-shadow: 0 24px 60px rgba(0,0,0,0.55); max-height: 90vh; overflow-y: auto; box-sizing: border-box;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="${slateLogo}" alt="Slate" style="width: 48px; height: 48px; border-radius: 12px; margin-bottom: 12px; display: inline-block;">
+        <h2 style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0;">Welcome to Slate</h2>
+        <p style="font-size: 13px; color: #a1a1aa; margin-top: 6px;">Your AI helper for schoolwork and projects.</p>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; margin-bottom: 18px; line-height: 1.5;">
+        <h3 style="font-size: 11px; text-transform: uppercase; color: #8b8b94; letter-spacing: 0.05em; margin: 0 0 8px 0; font-weight: 600;">What Slate Can Do</h3>
+        <p style="font-size: 12px; color: #a1a1aa; margin: 0 0 12px 0;">
+          Slate is designed to assist you directly in your browser. It can help you draft essays, summarize long articles, brainstorm fresh ideas for projects, explain complex math concepts step-by-step, and intelligently organize your study notes.
+        </p>
+        <p style="font-size: 11.5px; color: #8b8b94; margin: 0; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <strong style="color: #d4d4d8;">Need a completely unrestricted model?</strong> We offer a private, uncensored version of Slate designed for home use. This version operates completely free of standard safety guardrails, giving you absolute freedom over your prompts. You can request access in our <a href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer" style="color: #5865F2; text-decoration: underline;">Discord server</a>.
+        </p>
+      </div>
+
+      <div style="margin-bottom: 20px; background: rgba(34, 211, 238, 0.05); padding: 14px; border-radius: 10px; border: 1.5px solid rgba(34, 211, 238, 0.55);">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+          <input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 3px; transform: scale(1.15); accent-color: #22d3ee; cursor: pointer; flex-shrink: 0;">
+          <span style="font-size: 12px; color: #f4f4f5; font-weight: 500; line-height: 1.5;">
+            I acknowledge that I have read and agree to the
+            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #22d3ee; font-weight: 700; text-decoration: underline;">Terms of Service</a>
+            and
+            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #22d3ee; font-weight: 700; text-decoration: underline;">Privacy Policy</a>.
+            I understand my legal responsibilities regarding acceptable use.
+          </span>
+        </label>
+      </div>
+
+      <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 12px; background: #232329; color: #7c7c85; border: none; border-radius: 10px; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: background-color 0.2s, color 0.2s;">Accept agreements to continue</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  var btn = modal.querySelector('#welcome-dismiss-btn');
+  var checkbox = modal.querySelector('#welcome-terms-checkbox');
+
+  function updateLaunchState() {
+    if (checkbox.checked) {
+      btn.disabled = false;
+      btn.innerText = 'Launch Slate';
+      btn.style.background = '#ffffff';
+      btn.style.color = '#000000';
+      btn.style.cursor = 'pointer';
+    } else {
+      btn.disabled = true;
+      btn.innerText = 'Accept agreements to continue';
+      btn.style.background = '#232329';
+      btn.style.color = '#7c7c85';
+      btn.style.cursor = 'not-allowed';
+    }
+  }
+
+  checkbox.addEventListener('change', updateLaunchState);
+  btn.onclick = function() {
+    if (!btn.disabled) {
+      closeModal('slate-welcome-modal');
+      onAccept();
+    }
+  };
+}
+
 async function launchSlate() {
   showSlateModal(async function() {
     const url = await resolveRoute("slate");
@@ -853,7 +982,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v4.0 (mineral bundle, routed, lazy, close-guard)");
+console.info("[Mantle] hub ready · v4.1 (mineral bundle, routed, lazy, close-guard)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
