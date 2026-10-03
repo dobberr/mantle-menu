@@ -498,7 +498,7 @@ const TAGLINES = [
 })();
 
 /* ============================================================
-   ROUTING LAYER
+   ROUTING LAYER (Slate / Magma, and Mineral's fallback route)
    - The menu contains NO app URLs, in any form.
    - r.txt (separate bland repo) stores each URL base64-encoded,
      so the routing file is opaque at rest: in the repo, in
@@ -507,6 +507,9 @@ const TAGLINES = [
      triggers no routing request at all. Only an actual launch
      does — and at that moment the app's own domain necessarily
      appears in the Network tab. That part is not hideable.
+   - Mineral's PRIMARY delivery no longer uses this layer (it is
+     fetched as a single-file bundle from the mirror chain below);
+     the r.txt "mineral" entry survives only as the iframe fallback.
    ============================================================ */
 const ROUTE_SOURCES = [
   "https://cdn.jsdelivr.net/gh/dobberr/cfg@main/r.txt",
@@ -568,6 +571,63 @@ function getRoutes() {
   })().catch(e => { routesPromise = null; throw e; });
   return routesPromise;
 }
+
+/* ============================================================
+   MINERAL — single-file offline bundle
+   The repo's index.html IS the whole game (bootstrap inlined,
+   assets.epw embedded as a data URI). Fetched fresh every launch
+   and written directly into the popup. jsDelivr/statically are
+   excluded: both cap files at ~20MB and the bundle is ~37MB.
+   raw.githubusercontent revalidates via etag, so unchanged bundles
+   cost almost nothing after the first download.
+   ============================================================ */
+const MINERAL_SOURCES = [
+  "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html",
+  "https://raw.githack.com/dobberr/min/main/index.html",
+  "https://cdn.raw.githack.com/dobberr/min/main/index.html",
+  "https://dobberr.github.io/min/"
+];
+
+const MINERAL_SPLASH_HTML = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+  html,body{height:100%;margin:0;background:#030303;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;font-family:Arial,sans-serif}
+  .ring{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);
+    border-top-color:rgba(255,255,255,0.55);animation:spin 0.8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  p{color:#71717a;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0}
+  #mProg{color:#a1a1aa;font-size:11px;letter-spacing:0.05em;margin:0;min-height:1.4em}
+</style></head><body><div class="ring"></div><p>Loading Mineral</p><p id="mProg"></p></body></html>`;
+
+function mineralErrorHtml(reason) {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+  <body style="height:100vh;margin:0;background:#030303;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif">
+    <div style="text-align:center;color:#a1a1aa;max-width:420px;padding:20px">
+      <h2 style="color:#fafafa;font-size:16px;margin:0 0 8px">Mineral couldn't load</h2>
+      <p style="font-size:13px;line-height:1.6;margin:0 0 6px">${reason}</p>
+      <p style="font-size:12px;color:#71717a;margin:0">Close this window and relaunch from Mantle.</p>
+    </div>
+  </body></html>`;
+}
+
+// Streams the response with progress reporting when the browser
+// supports it; falls back to a plain text() read otherwise.
+async function fetchBundleWithProgress(res, onProgress) {
+  if (!res.body || !res.body.getReader) return res.text();
+  const reader = res.body.getReader();
+  const total = parseInt(res.headers.get("content-length") || "0", 10);
+  const chunks = [];
+  let received = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    onProgress(received, total);
+  }
+  return new Blob(chunks).text();
+}
+
+const fmtMB = n => (n / (1024 * 1024)).toFixed(1);
 
 /* ============================================================
    POPUP SPOOFING
@@ -702,140 +762,72 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   }
 }
 
-function openSlateLegalDocs() {
-  var existingModal = document.getElementById('slate-privacy-modal');
-  if (existingModal) existingModal.remove();
+/* ============================================================
+   MINERAL LAUNCHER — bundle fetch → write into popup.
+   If every mirror fails, falls back to the r.txt "mineral" route
+   as an iframe inside this same popup, so a raw block never
+   fully kills Mineral.
+   ============================================================ */
+async function launchMineral() {
+  var win = window.open("about:blank", "_blank", WINDOW_FEATURES);
+  if (!win) { alert("Please allow popups."); return; }
 
-  var modal = document.createElement('div');
-  modal.id = "slate-privacy-modal";
-  modal.className = "modal-backdrop";
-  modal.style = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', Arial, sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
-  modal.innerHTML = `
-    <div class="modal-card" style="background: #0e0e13; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 22px; width: 100%; max-width: 600px; color: #f4f4f5; box-shadow: 0 24px 60px rgba(0,0,0,0.55); max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px;">
-        <h2 style="font-size: 18px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; margin: 0;">Slate Legal Agreements</h2>
-        <button onclick="closeModal('slate-privacy-modal')" style="background: transparent; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
-      </div>
+  var d = win.document;
+  const spoof = pickSpoof();
+  armCloseGuard(win);
+  keepSpoofed(d, spoof);
+  d.open(); d.write(MINERAL_SPLASH_HTML); d.close();
 
-      <div style="font-size: 13px; line-height: 1.6; color: #a1a1aa;">
-        <p style="margin-bottom: 16px;">Last Updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p>
+  const prog = () => { try { return d.getElementById("mProg"); } catch (_) { return null; } };
 
-        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 24px 0 10px 0; border-left: 2px solid #22d3ee; padding-left: 8px;">Part 1: Terms of Service</h3>
+  for (const url of MINERAL_SOURCES) {
+    try {
+      const res = await fetch(url, { cache: "no-cache" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const text = await fetchBundleWithProgress(res, (got, total) => {
+        const p = prog();
+        if (!p) return;
+        p.textContent = total
+          ? fmtMB(got) + " / " + fmtMB(total) + " MB"
+          : fmtMB(got) + " MB loaded";
+      });
+      // Fingerprint: the real bundle is huge and contains the game opts.
+      // Rejects school block pages served with 200.
+      if (text.length < 100000 || !/eaglercraftXOpts/.test(text))
+        throw new Error("Response wasn't the Mineral bundle");
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.1 Acceptance and Capacity</h4>
-        <p style="margin-bottom: 12px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p>
-
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.2 Acceptable Use</h4>
-        <p style="margin-bottom: 12px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p>
-
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.3 Limitation of Liability</h4>
-        <p style="margin-bottom: 12px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p>
-
-        <div style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px; padding: 14px; margin-bottom: 24px;">
-          <h4 style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #ef4444; margin: 0 0 6px 0;">1.4 Slate [UNCENSORED] Tier Agreement</h4>
-          <p style="font-size: 12px; color: #fca5a5; margin: 0; line-height: 1.5;">
-            Registered users executing queries via the invite-only <code>Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters; therefore, the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.
-          </p>
-        </div>
-
-        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 0 0 10px 0; border-left: 2px solid #22d3ee; padding-left: 8px;">Part 2: Privacy Policy</h3>
-        <p style="margin-bottom: 12px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p>
-
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">2.1 Data We Collect</h4>
-        <ul style="margin: 0 0 14px 0; padding-left: 20px; list-style-type: disc;">
-          <li style="margin-bottom: 4px;">Account username profile data</li>
-          <li style="margin-bottom: 4px;">Authentication email address</li>
-          <li style="margin-bottom: 4px;">Last active system timestamps</li>
-          <li style="margin-bottom: 4px;">Account initialization timestamps</li>
-          <li style="margin-bottom: 4px;">Cumulative totals of prompts sent and token payloads utilized</li>
-        </ul>
-
-      </div>
-
-      <button onclick="closeModal('slate-privacy-modal')" style="width: 100%; margin-top: 16px; padding: 12px; background: #ffffff; color: #000000; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 13px;">Close Document</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-}
-
-function showSlateModal(onAccept) {
-  var existingModal = document.getElementById('slate-welcome-modal');
-  if (existingModal) existingModal.remove();
-
-  var slateLogo = "https://mantleunblocked.github.io/assets/Slate/Slate.png";
-  var modal = document.createElement('div');
-  modal.id = "slate-welcome-modal";
-  modal.className = "modal-backdrop";
-  modal.style = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', Arial, sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
-  modal.innerHTML = `
-    <div class="modal-card" style="background: #0e0e13; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 22px; width: 100%; max-width: 480px; color: #f4f4f5; box-shadow: 0 24px 60px rgba(0,0,0,0.55); max-height: 90vh; overflow-y: auto; box-sizing: border-box;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <img src="${slateLogo}" alt="Slate" style="width: 48px; height: 48px; border-radius: 12px; margin-bottom: 12px; display: inline-block;">
-        <h2 style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0;">Welcome to Slate</h2>
-        <p style="font-size: 13px; color: #a1a1aa; margin-top: 6px;">Your AI helper for schoolwork and projects.</p>
-      </div>
-
-      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; margin-bottom: 18px; line-height: 1.5;">
-        <h3 style="font-size: 11px; text-transform: uppercase; color: #8b8b94; letter-spacing: 0.05em; margin: 0 0 8px 0; font-weight: 600;">What Slate Can Do</h3>
-        <p style="font-size: 12px; color: #a1a1aa; margin: 0 0 12px 0;">
-          Slate is designed to assist you directly in your browser. It can help you draft essays, summarize long articles, brainstorm fresh ideas for projects, explain complex math concepts step-by-step, and intelligently organize your study notes.
-        </p>
-        <p style="font-size: 11.5px; color: #8b8b94; margin: 0; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
-          <strong style="color: #d4d4d8;">Need a completely unrestricted model?</strong> We offer a private, uncensored version of Slate designed for home use. This version operates completely free of standard safety guardrails, giving you absolute freedom over your prompts. You can request access in our <a href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer" style="color: #5865F2; text-decoration: underline;">Discord server</a>.
-        </p>
-      </div>
-
-      <div style="margin-bottom: 20px; background: rgba(34, 211, 238, 0.05); padding: 14px; border-radius: 10px; border: 1.5px solid rgba(34, 211, 238, 0.55);">
-        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
-          <input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 3px; transform: scale(1.15); accent-color: #22d3ee; cursor: pointer; flex-shrink: 0;">
-          <span style="font-size: 12px; color: #f4f4f5; font-weight: 500; line-height: 1.5;">
-            I acknowledge that I have read and agree to the
-            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #22d3ee; font-weight: 700; text-decoration: underline;">Terms of Service</a>
-            and
-            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #22d3ee; font-weight: 700; text-decoration: underline;">Privacy Policy</a>.
-            I understand my legal responsibilities regarding acceptable use.
-          </span>
-        </label>
-      </div>
-
-      <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 12px; background: #232329; color: #7c7c85; border: none; border-radius: 10px; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: background-color 0.2s, color 0.2s;">Accept agreements to continue</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  var btn = modal.querySelector('#welcome-dismiss-btn');
-  var checkbox = modal.querySelector('#welcome-terms-checkbox');
-
-  function updateLaunchState() {
-    if (checkbox.checked) {
-      btn.disabled = false;
-      btn.innerText = 'Launch Slate';
-      btn.style.background = '#ffffff';
-      btn.style.color = '#000000';
-      btn.style.cursor = 'pointer';
-    } else {
-      btn.disabled = true;
-      btn.innerText = 'Accept agreements to continue';
-      btn.style.background = '#232329';
-      btn.style.color = '#7c7c85';
-      btn.style.cursor = 'not-allowed';
+      d.open(); d.write(text); d.close();
+      applySpoof(d, spoof);
+      console.info("[Mantle] Mineral bundle (" + fmtMB(text.length) + " MB) served from " + new URL(url).host);
+      return;
+    } catch (e) {
+      console.warn("[Mantle] Mineral mirror failed: " + url + " (" + (e && e.message ? e.message : e) + ")");
     }
   }
 
-  checkbox.addEventListener('change', updateLaunchState);
-  btn.onclick = function() {
-    if (!btn.disabled) {
-      closeModal('slate-welcome-modal');
-      onAccept();
+  // Fallback: the classic iframe route from r.txt (still points at
+  // the same repo served over GitHub Pages).
+  try {
+    const fallbackUrl = await resolveRoute("mineral");
+    if (fallbackUrl) {
+      console.warn("[Mantle] all Mineral mirrors unreachable — falling back to iframe route");
+      d.open();
+      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000;overflow:hidden;width:100vw;height:100vh;"></body></html>`);
+      d.close();
+      const frame = d.createElement('iframe');
+      frame.src = fallbackUrl;
+      frame.style.cssText = "width:100vw;height:100vh;border:none;display:block";
+      frame.setAttribute("allow", "fullscreen; pointer-lock; gamepad; keyboard-map; clipboard-read; clipboard-write; camera; microphone");
+      frame.setAttribute("sandbox", "allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-pointer-lock");
+      frame.setAttribute("allowfullscreen", "true");
+      d.body.appendChild(frame);
+      return;
     }
-  };
+  } catch (_) { /* routing also down */ }
+
+  d.open(); d.write(mineralErrorHtml("Every download mirror was unreachable on this network.")); d.close();
 }
 
-// ROUTING INITIATORS
-async function launchMineral() {
-  const url = await resolveRoute("mineral");
-  if (url) launchWithSpoof(url, false);
-}
 async function launchSlate() {
   showSlateModal(async function() {
     const url = await resolveRoute("slate");
@@ -854,14 +846,14 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
     var fn = map[btn.getAttribute("data-launch")];
     if (fn) fn();
   });
-  // Pre-warm on first press of a launch button: shaves the fetch
-  // latency off the click, without ever fetching for idle viewers
+  // Pre-warm routes on first press of a launch button: shaves the
+  // fetch latency off the click, without ever fetching for idle viewers
   btn.addEventListener("pointerdown", function () { getRoutes(); }, { once: true });
 });
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v3.9 (routed, lazy, close-guard, taglines)");
+console.info("[Mantle] hub ready · v4.0 (mineral bundle, routed, lazy, close-guard)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
