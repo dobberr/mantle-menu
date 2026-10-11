@@ -23,15 +23,20 @@
   :root {
     color-scheme: dark;
     --bg: #0a0a10;
-    --surface-hover: #14141b;
-    --surface-active: #191921;
-    --border: rgba(255,255,255,0.07);
-    --border-strong: rgba(255,255,255,0.14);
+    --surface: #101018;
+    --surface-hover: #16161e;
+    --surface-active: #1c1c26;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
     --text-1: #fafafa;
-    --text-2: #a1a1aa;
-    --text-3: #71717a;
-    --text-4: #52525b;
+    --text-2: #b0b0b8;
+    --text-3: #9a9aa3;
+    --text-4: #6e6e78;
     --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* GridPulse */
+    --grid-cell: 24px;
+    --grid-line: 0.06;
   }
 
   * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -42,25 +47,32 @@
     background: var(--bg);
     color: var(--text-1);
     font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.5;
     display: flex;
     flex-direction: column;
-    padding: 56px 20px 40px;
+    padding: 72px 24px 56px;
     -webkit-tap-highlight-color: transparent;
     position: relative;
   }
 
-  /* Dot grid background: cool lavender-tinted 28px tile.
-     Not a gradient, not a vignette, not a mesh. Just a texture. */
-  body::before {
-    content: "";
+  /* ---------- GridPulse background ---------- */
+
+  #grid-pulse {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='14' cy='14' r='1' fill='%238b95d4' fill-opacity='0.08'/%3E%3C/svg%3E");
+    overflow: hidden;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0.5 0 V24 M0 0.5 H24' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='1' fill='none'/%3E%3C/svg%3E");
     background-repeat: repeat;
+    background-size: var(--grid-cell) var(--grid-cell);
+  }
+  #grid-pulse canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   ::selection { background: rgba(139,149,212,0.24); }
@@ -69,7 +81,7 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 480px;
+    max-width: 620px;
     margin: 0 auto;
     flex: 1;
     display: flex;
@@ -80,24 +92,28 @@
 
   header {
     text-align: center;
-    margin-bottom: 36px;
+    margin-bottom: 48px;
   }
 
+  /* No halo overlays. Readability around the logo, tagline and
+     footer is handled at the source by the GridPulse dimming curve,
+     which keeps cells faint over a wide radius around every text
+     block. See `brightness()` in the script. */
   header .logo {
     display: block;
     width: auto;
-    max-width: 200px;
+    max-width: 260px;
     height: auto;
-    margin: 0 auto 20px;
+    margin: 0 auto 26px;
     user-select: none;
     -webkit-user-drag: none;
   }
 
   .tagline {
     margin: 0 auto;
-    max-width: 44ch;
+    max-width: 46ch;
     min-height: 3.3em;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 400;
     color: var(--text-3);
     line-height: 1.55;
@@ -127,20 +143,20 @@
   .apps {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
 
   .row {
     --row-accent: rgba(255,255,255,0.5);
     position: relative;
     display: grid;
-    grid-template-columns: 38px 1fr 16px;
+    grid-template-columns: 48px 1fr 20px;
     align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    background: transparent;
+    gap: 18px;
+    padding: 18px 22px;
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     color: inherit;
     font: inherit;
     text-align: left;
@@ -160,7 +176,7 @@
 
   .row:focus-visible {
     outline: 2px solid color-mix(in srgb, var(--row-accent) 60%, transparent);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
   .row[data-launch="mineral"] { --row-accent: #22d3ee; }
@@ -168,12 +184,12 @@
   .row[data-launch="magma"]   { --row-accent: #fb923c; }
 
   .row-icon {
-    width: 38px;
-    height: 38px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid color-mix(in srgb, var(--row-accent) 22%, transparent);
     background: color-mix(in srgb, var(--row-accent) 8%, transparent);
     color: var(--row-accent);
@@ -181,29 +197,29 @@
   }
 
   .row:hover .row-icon {
-    border-color: color-mix(in srgb, var(--row-accent) 40%, transparent);
-    background: color-mix(in srgb, var(--row-accent) 12%, transparent);
+    border-color: color-mix(in srgb, var(--row-accent) 42%, transparent);
+    background: color-mix(in srgb, var(--row-accent) 13%, transparent);
   }
 
-  .row-icon svg { width: 18px; height: 18px; display: block; }
+  .row-icon svg { width: 22px; height: 22px; display: block; }
 
   .row-body { min-width: 0; }
 
   .row-name {
     display: block;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--text-1);
-    letter-spacing: -0.005em;
+    letter-spacing: -0.008em;
     line-height: 1.3;
   }
 
   .row-desc {
     display: block;
-    font-size: 12.5px;
+    font-size: 14px;
     color: var(--text-3);
-    line-height: 1.4;
-    margin-top: 2px;
+    line-height: 1.45;
+    margin-top: 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -217,46 +233,42 @@
     transition: color 0.15s var(--ease), transform 0.15s var(--ease);
   }
 
-  .row-arrow svg { width: 15px; height: 15px; display: block; }
+  .row-arrow svg { width: 17px; height: 17px; display: block; }
 
   .row:hover .row-arrow {
     color: var(--row-accent);
     transform: translateX(2px);
   }
 
-  /* ---------- Community (Discord) ----------
-     Deliberately NOT a product card. Different layout family:
-     hairline divider, then a compact text link with an inline
-     brand glyph. No icon box, no border, no card chrome. */
+  /* ---------- Community (Discord) ---------- */
 
   .community {
-    margin-top: 26px;
-    padding-top: 22px;
+    margin-top: 34px;
+    padding-top: 28px;
     border-top: 1px solid var(--border);
   }
 
   .community-link {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     padding: 6px 4px;
-    color: var(--text-3);
+    color: var(--text-2);
     text-decoration: none;
-    font-size: 13px;
-    letter-spacing: -0.002em;
+    font-size: 15px;
+    letter-spacing: -0.003em;
     transition: color 0.15s var(--ease);
   }
 
-  .community-link:hover { color: var(--text-1); }
   .community-link:focus-visible {
     outline: 2px solid rgba(125,135,246,0.5);
-    outline-offset: 3px;
+    outline-offset: 4px;
     border-radius: 4px;
   }
 
   .community-icon {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     color: #7d87f6;
     flex-shrink: 0;
     transition: color 0.15s var(--ease);
@@ -264,14 +276,39 @@
 
   .community-link:hover .community-icon { color: #8b95fa; }
 
+  /* Shimmer: the base text keeps its normal colour and stays visible
+     at every frame. The gradient is a semi-transparent white band
+     that sweeps across the glyphs via background-clip: text, adding
+     brightness on top of the base. No -webkit-text-fill-color:
+     transparent — that would make uncovered glyphs disappear, which
+     is what produced the "backwards typewriter" bug. */
   .community-text {
     flex: 1;
-    color: inherit;
+    color: var(--text-2);
+    background-image: linear-gradient(
+      110deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.85) 50%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    animation: communityShine 4s linear infinite;
+  }
+
+  @keyframes communityShine {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+
+  .community-link:hover .community-text {
+    animation-duration: 2s;
   }
 
   .community-arrow {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     color: var(--text-4);
     flex-shrink: 0;
     transition: color 0.15s var(--ease), transform 0.15s var(--ease);
@@ -282,33 +319,44 @@
     transform: translateX(2px);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .community-text { animation: none; background: none; }
+  }
+
   /* ---------- Footer ---------- */
 
   footer {
     margin-top: auto;
-    padding-top: 36px;
+    padding-top: 48px;
     text-align: center;
-    font-size: 11.5px;
+    font-size: 13px;
     color: var(--text-4);
     letter-spacing: 0.01em;
   }
 
-  @media (max-width: 480px) {
-    body { padding-top: 40px; }
-    header { margin-bottom: 28px; }
-    header .logo { max-width: 168px; }
+  @media (max-width: 560px) {
+    body { padding: 52px 20px 40px; }
+    header { margin-bottom: 36px; }
+    header .logo { max-width: 220px; }
+    .row { padding: 16px 18px; gap: 16px; grid-template-columns: 44px 1fr 18px; }
+    .row-icon { width: 44px; height: 44px; }
+    .row-icon svg { width: 20px; height: 20px; }
+    .row-name { font-size: 15.5px; }
+    .row-desc { font-size: 13.5px; }
   }
 </style>
 </head>
 
 <body>
+  <div id="grid-pulse" aria-hidden="true"><canvas></canvas></div>
+
   <script>
     /* WATCHDOG — independent of the main script below */
     window.__mantleBooted = false;
     setTimeout(function () {
       if (window.__mantleBooted) return;
       var b = document.createElement("div");
-      b.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10001;background:#18181b;border:1px solid rgba(255,255,255,0.14);color:#fafafa;font:12.5px/1.5 -apple-system,Arial,sans-serif;padding:10px 16px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);text-align:center;max-width:88vw";
+      b.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10001;background:#18181b;border:1px solid rgba(255,255,255,0.14);color:#fafafa;font:13px/1.5 -apple-system,Arial,sans-serif;padding:12px 18px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.5);text-align:center;max-width:88vw";
       b.innerHTML = "<b>Mantle loaded an out-of-date copy.</b><br>Hold Ctrl and press R to refresh.";
       (document.body || document.documentElement).appendChild(b);
     }, 2500);
@@ -317,7 +365,7 @@
   <main>
     <header>
       <img class="logo" src="https://mantleunblocked.github.io/assets/full%20logo.png" alt="Mantle" draggable="false">
-      <p class="tagline" id="tagline"><span id="tagText">A collection of web apps and utilities built for heavily networked environments like schools.</span><span class="caret" id="tagCaret" aria-hidden="true"></span></p>
+      <p class="tagline" id="tagline" data-grid-avoid><span id="tagText">A collection of web apps and utilities built for heavily networked environments like schools.</span><span class="caret" id="tagCaret" aria-hidden="true"></span></p>
     </header>
 
     <div class="apps" aria-label="Applications">
@@ -349,7 +397,7 @@
         </span>
         <span class="row-body">
           <span class="row-name">Slate</span>
-          <span class="row-desc">AI assistant for schoolwork and projects</span>
+          <span class="row-desc">Chat with frontier AI models</span>
         </span>
         <span class="row-arrow" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -366,7 +414,7 @@
         </span>
         <span class="row-body">
           <span class="row-name">Magma</span>
-          <span class="row-desc">Bypass school network filters</span>
+          <span class="row-desc">Unblock any website, on any network</span>
         </span>
         <span class="row-arrow" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -391,7 +439,7 @@
       </a>
     </div>
 
-    <footer>
+    <footer data-grid-avoid>
       © 2026 Mantle
     </footer>
   </main>
@@ -400,10 +448,242 @@
 "use strict";
 
 /* ============================================================
-   TAGLINES — rotating typewriter line under the logo.
-   Each pick is fully random (never the same line twice in a row).
-   Runs UNCONDITIONALLY (no prefers-reduced-motion gate) so it
-   works on school Windows PCs with system animations disabled.
+   GRIDPULSE — vanilla port of the React component.
+
+   Cells behind text are dimmed by a wide, quadratic falloff
+   (see `brightness()` below) rather than by an overlay. The
+   falloff radius is deliberately large (FADE cells) so the
+   transition reads as a soft radial gradient around text
+   rather than a rectangle, and no halo element is needed on
+   the text itself.
+   ============================================================ */
+(function initGridPulse() {
+  const el = document.getElementById("grid-pulse");
+  const canvas = el && el.querySelector("canvas");
+  const ctx = canvas && canvas.getContext("2d");
+  if (!el || !canvas || !ctx) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const CELL = 24;
+  const REACH = 2.6;
+  const AMBIENT = 2;
+  const MAX_LIT = 180;
+  const AVOID = "[data-grid-avoid]";
+
+  const HUE_TOP = 60;
+  const HUE_SPAN = 270;
+  const TINTS = [88, 80, 72, 64, 56];
+  const TINTS_DARK = [72, 65, 58, 51, 44];
+  const FAINT = 0.13;
+  // How many cells it takes to come back to full strength. Widened
+  // from 2.2 to 4.5 so the fade reads as a radial gradient around
+  // text rather than a rectangle. At 24px cells, that's ~108px.
+  const FADE = 4.5;
+  const PAD = 5;
+  const FADE_IN = 160;
+  const FADE_OUT = 750;
+
+  const easeOut = t => 1 - (1 - t) * (1 - t);
+  const easeIn = t => t * t;
+
+  let cols = 1, rows = 1, width = 0, height = 0;
+  let clear = [];
+  let tints = TINTS;
+  const cells = new Map();
+
+  const probe = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  function readTheme() {
+    if (!probe) return;
+    probe.clearRect(0, 0, 1, 1);
+    probe.fillStyle = getComputedStyle(el).color;
+    probe.fillRect(0, 0, 1, 1);
+    const [r, g, b] = probe.getImageData(0, 0, 1, 1).data;
+    const light = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.5;
+    tints = light ? TINTS_DARK : TINTS;
+  }
+
+  function measureText() {
+    const bounds = el.getBoundingClientRect();
+    const scope = document;
+    clear = [...scope.querySelectorAll(AVOID)].flatMap(node => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const lines = [...range.getClientRects()].filter(r => r.width > 0 && r.height > 0);
+      const boxes = lines.length > 0 ? lines : [node.getBoundingClientRect()];
+      return boxes.map(r => new DOMRect(
+        r.left - bounds.left - PAD,
+        r.top - bounds.top - PAD,
+        r.width + PAD * 2,
+        r.height + PAD * 2
+      ));
+    });
+  }
+
+  function measure() {
+    width = el.clientWidth;
+    height = el.clientHeight;
+    cols = Math.max(1, Math.ceil(width / CELL));
+    rows = Math.max(1, Math.ceil(height / CELL));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    readTheme();
+    measureText();
+    wake();
+  }
+
+  // How bright a cell may be, by its distance from the nearest
+  // line of text. Uses a quadratic (ease-in) curve: cells stay
+  // close to FAINT right behind the words, then rise to full
+  // strength smoothly over FADE cells of distance. That produces
+  // a soft radial-looking dimming zone rather than a hard-edged
+  // rectangle around each text block.
+  function brightness(col, row) {
+    const x = col * CELL + CELL / 2;
+    const y = row * CELL + CELL / 2;
+    let nearest = Infinity;
+    for (const r of clear) {
+      const dx = Math.max(r.left - x, 0, x - r.right);
+      const dy = Math.max(r.top - y, 0, y - r.bottom);
+      nearest = Math.min(nearest, Math.hypot(dx, dy));
+      if (nearest === 0) break;
+    }
+    if (nearest === Infinity) return 1;
+    const t = Math.min(1, nearest / (FADE * CELL));
+    return FAINT + (1 - FAINT) * (t * t);
+  }
+
+  function ink(row) {
+    const t = rows > 1 ? Math.min(1, row / (rows - 1)) : 0;
+    const hue = (((HUE_TOP - t * HUE_SPAN) % 360) + 360) % 360;
+    const tint = tints[Math.floor(Math.random() * tints.length)];
+    return "hsl(" + Math.round(hue) + " 94% " + tint + "%)";
+  }
+
+  let frame = 0;
+  function draw(now) {
+    frame = 0;
+    ctx.clearRect(0, 0, width, height);
+    for (const [key, c] of cells) {
+      let alpha;
+      if (now < c.until) {
+        alpha = easeOut(Math.min(1, (now - c.born) / FADE_IN));
+      } else {
+        const t = (now - c.until) / FADE_OUT;
+        if (t >= 1) { cells.delete(key); continue; }
+        alpha = 1 - easeIn(t);
+      }
+      ctx.globalAlpha = alpha * c.dim;
+      ctx.fillStyle = c.colour;
+      ctx.fillRect(c.col * CELL + 1, c.row * CELL + 1, CELL - 1, CELL - 1);
+    }
+    ctx.globalAlpha = 1;
+    if (cells.size > 0) frame = requestAnimationFrame(draw);
+  }
+  function wake() {
+    if (!frame) frame = requestAnimationFrame(draw);
+  }
+
+  function light(col, row, hold) {
+    if (col < 0 || row < 0 || col >= cols || row >= rows) return;
+    if (cells.size >= MAX_LIT) return;
+    const key = col + "," + row;
+    const now = performance.now();
+    const lit = cells.get(key);
+    if (lit && now < lit.until) return;
+    let born = now;
+    if (lit) {
+      const faded = 1 - easeIn(Math.min(1, (now - lit.until) / FADE_OUT));
+      born = now - (1 - Math.sqrt(1 - faded)) * FADE_IN;
+    }
+    cells.set(key, {
+      col: col,
+      row: row,
+      colour: (lit && lit.colour) || ink(row),
+      dim: brightness(col, row),
+      born: born,
+      until: now + hold
+    });
+    wake();
+  }
+
+  let pending = 0;
+  let at = null;
+  function paint() {
+    pending = 0;
+    if (!at) return;
+    const cx = Math.floor(at.x / CELL);
+    const cy = Math.floor(at.y / CELL);
+    const span = Math.ceil(REACH);
+    for (let dy = -span; dy <= span; dy++) {
+      for (let dx = -span; dx <= span; dx++) {
+        const away = Math.hypot(dx, dy);
+        if (away > REACH) continue;
+        if (Math.random() > 1 - away / (REACH + 0.6)) continue;
+        light(cx + dx, cy + dy, 260 + Math.random() * 900);
+      }
+    }
+  }
+  function onMove(event) {
+    const bounds = el.getBoundingClientRect();
+    at = { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+    if (!pending) pending = requestAnimationFrame(paint);
+  }
+
+  let visible = true;
+  let beat = 0;
+  function drift() {
+    beat = window.setTimeout(drift, 1400 + Math.random() * 1800);
+    if (!visible || document.hidden) return;
+    for (let i = 0; i < AMBIENT; i++) {
+      light(
+        Math.floor(Math.random() * cols),
+        Math.floor(Math.random() * rows),
+        900 + Math.random() * 1600
+      );
+    }
+  }
+  beat = window.setTimeout(drift, 500);
+
+  const sight = new IntersectionObserver(entries => {
+    const entry = entries[0];
+    visible = entry ? entry.isIntersecting : true;
+  });
+  sight.observe(el);
+
+  const resize = new ResizeObserver(measure);
+  resize.observe(el);
+
+  let recheck = 0;
+  const copy = new MutationObserver(() => {
+    if (!recheck) {
+      recheck = requestAnimationFrame(() => {
+        recheck = 0;
+        measureText();
+      });
+    }
+  });
+  copy.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  const theme = new MutationObserver(readTheme);
+  theme.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class", "style", "data-theme"]
+  });
+
+  const scheme = window.matchMedia("(prefers-color-scheme: dark)");
+  scheme.addEventListener("change", readTheme);
+
+  measure();
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(measureText).catch(() => {});
+  }
+  window.addEventListener("pointermove", onMove, { passive: true });
+})();
+
+/* ============================================================
+   TAGLINES
    ============================================================ */
 const TAGLINES = [
   "Unblocked games for when the teacher isn't looking",
@@ -441,7 +721,25 @@ const TAGLINES = [
   "Check out all these amazing lessons (none are actually lessons)",
   "Ctrl+Shift+T reopens your last closed tab. You're welcome.",
   "What if we kissed at the Mantle loading screen? Haha jk... unless?",
-  "Banana"
+  "Banana",
+  "POV: the bell just rang and you're free",
+  "Mom said it's my turn on the computer",
+  "Study hall? More like Mantle hall",
+  "Every day I wake up and choose video games",
+  "This is my Roman Empire",
+  "Understood the assignment (ignored it)",
+  "We ball",
+  "Google Docs looks kinda different today",
+  "IT department hates this one simple trick",
+  "The teacher is coming, act natural",
+  "We're so back (we never left)",
+  "Homework? In this economy?",
+  "Blud thinks he's on the school wifi",
+  "Sneaking in games like it's a heist",
+  "Nothing suspicious here, just a research project",
+  "Just here for the vibes",
+  "Certified banger",
+  "Ranked higher than your GPA"
 ];
 
 (function runTaglines() {
@@ -496,11 +794,7 @@ const TAGLINES = [
 })();
 
 /* ============================================================
-   ROUTING LAYER (Slate / Magma, and Mineral's fallback route)
-   - The menu contains NO app URLs, in any form.
-   - r.txt (separate bland repo) stores each URL base64-encoded.
-   - Routes are fetched LAZILY: only an actual launch triggers
-     a routing request. Idle viewers never touch the routing file.
+   ROUTING LAYER
    ============================================================ */
 const ROUTE_SOURCES = [
   "https://cdn.jsdelivr.net/gh/dobberr/cfg@main/r.txt",
@@ -560,11 +854,7 @@ function getRoutes() {
 }
 
 /* ============================================================
-   MINERAL — single-file offline bundle
-   The repo's index.html IS the whole game (bootstrap inlined,
-   assets.epw embedded as a data URI). Fetched fresh every launch
-   and written directly into the popup. jsDelivr/statically are
-   excluded: both cap files at ~20MB and the bundle is ~37MB.
+   MINERAL
    ============================================================ */
 const MINERAL_SOURCES = [
   "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html",
@@ -575,21 +865,21 @@ const MINERAL_SOURCES = [
 
 const MINERAL_SPLASH_HTML = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
   html,body{height:100%;margin:0;background:#0a0a10;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:16px;font-family:-apple-system,Arial,sans-serif}
-  .ring{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.10);
+    align-items:center;justify-content:center;gap:18px;font-family:-apple-system,Arial,sans-serif}
+  .ring{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.10);
     border-top-color:rgba(255,255,255,0.55);animation:spin 0.8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  p{color:#71717a;font-size:12px;letter-spacing:0.02em;margin:0}
-  #mProg{color:#a1a1aa;font-size:11.5px;margin:0;min-height:1.4em;font-variant-numeric:tabular-nums}
+  p{color:#9a9aa3;font-size:13px;letter-spacing:0.02em;margin:0}
+  #mProg{color:#b0b0b8;font-size:12.5px;margin:0;min-height:1.4em;font-variant-numeric:tabular-nums}
 </style></head><body><div class="ring"></div><p>Loading Mineral</p><p id="mProg"></p></body></html>`;
 
 function mineralErrorHtml(reason) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
   <body style="height:100vh;margin:0;background:#0a0a10;display:flex;align-items:center;justify-content:center;font-family:-apple-system,Arial,sans-serif">
-    <div style="text-align:center;color:#a1a1aa;max-width:420px;padding:20px">
-      <h2 style="color:#fafafa;font-size:16px;font-weight:600;margin:0 0 8px">Mineral couldn't load</h2>
-      <p style="font-size:13px;line-height:1.6;margin:0 0 6px">${reason}</p>
-      <p style="font-size:12.5px;color:#71717a;margin:0">Close this window and relaunch from Mantle.</p>
+    <div style="text-align:center;color:#b0b0b8;max-width:440px;padding:20px">
+      <h2 style="color:#fafafa;font-size:17px;font-weight:600;margin:0 0 10px">Mineral couldn't load</h2>
+      <p style="font-size:14px;line-height:1.6;margin:0 0 8px">${reason}</p>
+      <p style="font-size:13px;color:#9a9aa3;margin:0">Close this window and relaunch from Mantle.</p>
     </div>
   </body></html>`;
 }
@@ -643,11 +933,6 @@ function keepSpoofed(d, spoof) {
   }, 500);
 }
 
-/* ============================================================
-   CLOSE GUARD — native "Leave site?" dialog on close/reload.
-   beforeunload fires at the WINDOW, so the listener must be
-   registered on the window object itself.
-   ============================================================ */
 function armCloseGuard(win) {
   var guard = function (e) {
     e.preventDefault();
@@ -657,9 +942,6 @@ function armCloseGuard(win) {
   win.onbeforeunload = guard;
 }
 
-/* ============================================================
-   MODAL CHOREOGRAPHY
-   ============================================================ */
 function closeModal(id) {
   var m = document.getElementById(id);
   if (!m) return;
@@ -712,13 +994,13 @@ function launchWithSpoof(url, showNoticeBanner = false) {
 
   if (showNoticeBanner) {
     var banner = d.createElement('div');
-    banner.style.cssText = "position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 440px; background: #18181b; border: 1px solid rgba(255,255,255,0.14); color: #e4e4e7; padding: 14px 16px; border-radius: 10px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); display: flex; align-items: flex-start; gap: 12px; font-family: -apple-system, Arial, sans-serif; opacity: 0; transition: opacity 0.3s ease; box-sizing: border-box;";
+    banner.style.cssText = "position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 480px; background: #18181b; border: 1px solid rgba(255,255,255,0.14); color: #e4e4e7; padding: 16px 18px; border-radius: 10px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); display: flex; align-items: flex-start; gap: 12px; font-family: -apple-system, Arial, sans-serif; opacity: 0; transition: opacity 0.3s ease; box-sizing: border-box;";
     banner.innerHTML = `
-      <div style="flex: 1; font-size: 12.5px; line-height: 1.55;">
-        <strong style="display: block; color: #fafafa; margin-bottom: 3px; font-size: 13px; font-weight: 600;">Account inactivity notice</strong>
-        <span style="color: #a1a1aa;">To keep Slate free for active users, any accounts left inactive for 3 months or more are automatically deleted. You can always remake an account if yours gets removed.</span>
+      <div style="flex: 1; font-size: 13.5px; line-height: 1.55;">
+        <strong style="display: block; color: #fafafa; margin-bottom: 4px; font-size: 14px; font-weight: 600;">Account inactivity notice</strong>
+        <span style="color: #b0b0b8;">To keep Slate free for active users, any accounts left inactive for 3 months or more are automatically deleted. You can always remake an account if yours gets removed.</span>
       </div>
-      <button style="background: transparent; border: none; color: #71717a; font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0;" aria-label="Close">&times;</button>
+      <button style="background: transparent; border: none; color: #71717a; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0;" aria-label="Close">&times;</button>
     `;
     d.body.appendChild(banner);
 
@@ -735,11 +1017,6 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   }
 }
 
-/* ============================================================
-   MINERAL LAUNCHER — bundle fetch -> write into popup.
-   If every mirror fails, falls back to the r.txt "mineral" route
-   as an iframe inside this same popup.
-   ============================================================ */
 async function launchMineral() {
   var win = window.open("about:blank", "_blank", WINDOW_FEATURES);
   if (!win) { alert("Please allow popups."); return; }
@@ -797,7 +1074,7 @@ async function launchMineral() {
 }
 
 /* ============================================================
-   SLATE MODALS — legal docs + welcome gate
+   SLATE MODALS
    ============================================================ */
 function openSlateLegalDocs() {
   var existingModal = document.getElementById('slate-privacy-modal');
@@ -805,49 +1082,49 @@ function openSlateLegalDocs() {
 
   var modal = document.createElement('div');
   modal.id = "slate-privacy-modal";
-  modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
+  modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
   modal.innerHTML = `
-    <div style="background: #0f0f14; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 24px; width: 100%; max-width: 580px; color: #e4e4e7; max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 14px;">
-        <h2 style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Slate legal agreements</h2>
-        <button onclick="closeModal('slate-privacy-modal')" style="background: transparent; border: none; color: #71717a; font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: 4px;" aria-label="Close">&times;</button>
+    <div style="background: #0f0f16; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 28px; width: 100%; max-width: 640px; color: #e4e4e7; max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;">
+        <h2 style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Slate legal agreements</h2>
+        <button onclick="closeModal('slate-privacy-modal')" style="background: transparent; border: none; color: #71717a; font-size: 22px; cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: 4px;" aria-label="Close">&times;</button>
       </div>
 
-      <div style="font-size: 13px; line-height: 1.65; color: #a1a1aa;">
-        <p style="margin: 0 0 18px;">Last updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p>
+      <div style="font-size: 14px; line-height: 1.65; color: #b0b0b8;">
+        <p style="margin: 0 0 20px;">Last updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p>
 
-        <h3 style="font-size: 13px; font-weight: 600; color: #fafafa; margin: 22px 0 10px 0;">Part 1: Terms of Service</h3>
+        <h3 style="font-size: 14px; font-weight: 600; color: #fafafa; margin: 24px 0 12px 0;">Part 1: Terms of Service</h3>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">1.1 Acceptance and capacity</h4>
-        <p style="margin: 0 0 14px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p>
+        <h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.1 Acceptance and capacity</h4>
+        <p style="margin: 0 0 16px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">1.2 Acceptable use</h4>
-        <p style="margin: 0 0 14px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p>
+        <h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.2 Acceptable use</h4>
+        <p style="margin: 0 0 16px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">1.3 Limitation of liability</h4>
-        <p style="margin: 0 0 22px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p>
+        <h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.3 Limitation of liability</h4>
+        <p style="margin: 0 0 24px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p>
 
-        <div style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.18); border-radius: 8px; padding: 14px; margin-bottom: 22px;">
-          <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #f87171; margin: 0 0 6px 0;">1.4 Slate [UNCENSORED] tier agreement</h4>
-          <p style="font-size: 12.5px; color: #fca5a5; margin: 0; line-height: 1.55;">
-            Registered users executing queries via the invite-only <code style="font-family: 'Geist Mono', monospace; font-size: 11.5px;">Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters, so the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.
+        <div style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.18); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+          <h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #f87171; margin: 0 0 8px 0;">1.4 Slate [UNCENSORED] tier agreement</h4>
+          <p style="font-size: 13.5px; color: #fca5a5; margin: 0; line-height: 1.6;">
+            Registered users executing queries via the invite-only <code style="font-family: 'Geist Mono', monospace; font-size: 12.5px;">Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters, so the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.
           </p>
         </div>
 
-        <h3 style="font-size: 13px; font-weight: 600; color: #fafafa; margin: 0 0 10px 0;">Part 2: Privacy Policy</h3>
-        <p style="margin: 0 0 14px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p>
+        <h3 style="font-size: 14px; font-weight: 600; color: #fafafa; margin: 0 0 12px 0;">Part 2: Privacy Policy</h3>
+        <p style="margin: 0 0 16px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">2.1 Data we collect</h4>
-        <ul style="margin: 0 0 8px 0; padding-left: 20px;">
-          <li style="margin-bottom: 4px;">Account username profile data</li>
-          <li style="margin-bottom: 4px;">Authentication email address</li>
-          <li style="margin-bottom: 4px;">Last active system timestamps</li>
-          <li style="margin-bottom: 4px;">Account initialization timestamps</li>
-          <li style="margin-bottom: 4px;">Cumulative totals of prompts sent and token payloads utilized</li>
+        <h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">2.1 Data we collect</h4>
+        <ul style="margin: 0 0 10px 0; padding-left: 22px;">
+          <li style="margin-bottom: 5px;">Account username profile data</li>
+          <li style="margin-bottom: 5px;">Authentication email address</li>
+          <li style="margin-bottom: 5px;">Last active system timestamps</li>
+          <li style="margin-bottom: 5px;">Account initialization timestamps</li>
+          <li style="margin-bottom: 5px;">Cumulative totals of prompts sent and token payloads utilized</li>
         </ul>
       </div>
 
-      <button onclick="closeModal('slate-privacy-modal')" style="width: 100%; margin-top: 20px; padding: 11px; background: #fafafa; color: #0a0a10; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 13px; font-family: inherit;">Close</button>
+      <button onclick="closeModal('slate-privacy-modal')" style="width: 100%; margin-top: 22px; padding: 12px; background: #fafafa; color: #0a0a10; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 14px; font-family: inherit;">Close</button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -861,29 +1138,29 @@ function showSlateModal(onAccept) {
   var slateLogo = "https://mantleunblocked.github.io/assets/Slate/Slate.png";
   var modal = document.createElement('div');
   modal.id = "slate-welcome-modal";
-  modal.style.cssText = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
+  modal.style.cssText = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
   modal.innerHTML = `
-    <div style="background: #0f0f14; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 24px; width: 100%; max-width: 460px; color: #e4e4e7; max-height: 90vh; overflow-y: auto; box-sizing: border-box;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <img src="${slateLogo}" alt="Slate" style="width: 40px; height: 40px; border-radius: 8px; margin-bottom: 12px; display: inline-block;">
-        <h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Welcome to Slate</h2>
-        <p style="font-size: 13px; color: #a1a1aa; margin: 5px 0 0 0;">Your AI helper for schoolwork and projects.</p>
+    <div style="background: #0f0f16; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 28px; width: 100%; max-width: 500px; color: #e4e4e7; max-height: 90vh; overflow-y: auto; box-sizing: border-box;">
+      <div style="text-align: center; margin-bottom: 22px;">
+        <img src="${slateLogo}" alt="Slate" style="width: 46px; height: 46px; border-radius: 8px; margin-bottom: 14px; display: inline-block;">
+        <h2 style="font-size: 19px; font-weight: 600; letter-spacing: -0.012em; margin: 0; color: #fafafa;">Welcome to Slate</h2>
+        <p style="font-size: 14px; color: #b0b0b8; margin: 6px 0 0 0;">Chat with frontier AI models, in your browser.</p>
       </div>
 
-      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 16px; margin-bottom: 18px; line-height: 1.55;">
-        <h3 style="font-size: 10.5px; text-transform: uppercase; color: #71717a; letter-spacing: 0.08em; margin: 0 0 8px 0; font-weight: 500;">What Slate can do</h3>
-        <p style="font-size: 12.5px; color: #a1a1aa; margin: 0 0 12px 0;">
-          Slate assists you directly in your browser. It can help you draft essays, summarize long articles, brainstorm project ideas, explain math concepts step by step, and organize your study notes.
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 18px; margin-bottom: 20px; line-height: 1.6;">
+        <h3 style="font-size: 11px; text-transform: uppercase; color: #71717a; letter-spacing: 0.08em; margin: 0 0 10px 0; font-weight: 500;">What Slate can do</h3>
+        <p style="font-size: 13.5px; color: #b0b0b8; margin: 0 0 14px 0;">
+          Slate assists you directly in your browser. Ask questions, draft and edit writing, summarise long documents, brainstorm ideas, work through problems step by step, or organise notes.
         </p>
-        <p style="font-size: 12px; color: #71717a; margin: 0; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06);">
+        <p style="font-size: 13px; color: #9a9aa3; margin: 0; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06);">
           <strong style="color: #d4d4d8; font-weight: 500;">Need a completely unrestricted model?</strong> We offer a private, uncensored version of Slate designed for home use. This version operates completely free of standard safety guardrails, giving you absolute freedom over your prompts. You can request access in our <a href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer" style="color: #fafafa; text-decoration: underline; text-underline-offset: 2px;">Discord server</a>.
         </p>
       </div>
 
-      <div style="margin-bottom: 18px; background: rgba(255,255,255,0.02); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
-          <input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 2px; width: 15px; height: 15px; accent-color: #fafafa; cursor: pointer; flex-shrink: 0;">
-          <span style="font-size: 12.5px; color: #d4d4d8; line-height: 1.55;">
+      <div style="margin-bottom: 20px; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin: 0;">
+          <input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 3px; width: 16px; height: 16px; accent-color: #fafafa; cursor: pointer; flex-shrink: 0;">
+          <span style="font-size: 13.5px; color: #d4d4d8; line-height: 1.55;">
             I acknowledge that I have read and agree to the
             <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #fafafa; font-weight: 500; text-decoration: underline; text-underline-offset: 2px;">Terms of Service</a>
             and
@@ -893,7 +1170,7 @@ function showSlateModal(onAccept) {
         </label>
       </div>
 
-      <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 11px; background: #18181b; color: #52525b; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-weight: 500; cursor: not-allowed; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;">Accept agreements to continue</button>
+      <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 12px; background: #18181b; color: #52525b; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-weight: 500; cursor: not-allowed; font-size: 14px; font-family: inherit; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;">Accept agreements to continue</button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -940,9 +1217,6 @@ async function launchMagma() {
   if (url) launchWithSpoof(url, false);
 }
 
-/* ============================================================
-   WIRING
-   ============================================================ */
 document.querySelectorAll("[data-launch]").forEach(function (btn) {
   btn.addEventListener("click", function () {
     var map = { mineral: launchMineral, slate: launchSlate, magma: launchMagma };
@@ -953,7 +1227,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v4.5 (tinted bg, discord separated)");
+console.info("[Mantle] hub ready · v4.9 (shimmer fixed, halos removed, softer grid falloff)");
 
 try {
   if (window.parent && window.parent !== window) {
