@@ -95,6 +95,7 @@
     font-size: 13.5px; font-weight: 400; letter-spacing: 0.01em;
     color: var(--text-2);
     min-height: 1.6em;
+    transition: opacity 0.18s var(--ease-out), transform 0.18s var(--ease-out), filter 0.18s var(--ease-out);
   }
   .caret {
     display: inline-block;
@@ -103,6 +104,21 @@
     vertical-align: -0.15em;
     background: var(--accent);
     border-radius: 1px;
+    animation: caretBlink 1.15s ease-in-out infinite;
+  }
+
+  /* Tagline motion is intentionally OUTSIDE any prefers-reduced-motion
+     gate. The typewriter is core to Mantle's identity and the effect
+     is a per-character text reveal (no motion, no zoom, no parallax),
+     so it is safe to always run — including on school machines whose
+     OS has "show animations" turned off, which previously collapsed
+     the tagline into a static line that just swapped every few
+     seconds. */
+  header p.typing .caret { animation: none; opacity: 1; }
+  header p.out { opacity: 0; transform: translateY(4px); filter: blur(2px); }
+  @keyframes caretBlink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.1; }
   }
 
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -235,6 +251,9 @@
     color: var(--text-3);
   }
 
+  /* Entrance + modal choreography still respects reduced-motion —
+     these are the heavier blur/translate effects. The tagline
+     typewriter above is deliberately excluded from this gate. */
   @media (prefers-reduced-motion: no-preference) {
     .rise {
       opacity: 0;
@@ -259,24 +278,9 @@
       from { opacity: 1; transform: none; filter: blur(0); }
       to   { opacity: 0; transform: translateY(6px) scale(0.97); filter: blur(4px); }
     }
-
-    /* Tagline motion: soft blink while idle, steady while typing,
-       blur-slide between quotes */
-    .caret { animation: caretBlink 1.15s ease-in-out infinite; }
-    header p.typing .caret { animation: none; opacity: 1; }
-    header p {
-      transition: opacity 0.18s var(--ease-out), transform 0.18s var(--ease-out), filter 0.18s var(--ease-out);
-    }
-    header p.out { opacity: 0; transform: translateY(4px); filter: blur(2px); }
-  }
-  @keyframes caretBlink {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.1; }
   }
   @media (prefers-reduced-motion: reduce) {
     .cell, .go, .go svg, .pill, .cell::before, .cell::after { transition: none; }
-    .caret { animation: none; }
-    header p.swap .caret { display: none; }
     .rise { opacity: 1; animation: none; }
   }
 
@@ -384,6 +388,13 @@
    TAGLINES — rotating typewriter line under the logo.
    Each pick is fully random (never the same line twice in a row).
    Add/edit freely; no other changes needed.
+
+   IMPORTANT: The typewriter runs UNCONDITIONALLY. We deliberately
+   do NOT honour prefers-reduced-motion here. School Windows PCs
+   commonly have system animations disabled, which used to collapse
+   this into a static line that swapped every 6.5s. The effect is a
+   per-character text reveal — no motion, no zoom, no parallax — so
+   it is safe to always run.
    ============================================================ */
 const TAGLINES = [
   "Unblocked games for when the teacher isn't looking",
@@ -428,8 +439,6 @@ const TAGLINES = [
   const el = document.getElementById("tagText");
   const p = document.getElementById("tagline");
   if (!el || !p || !TAGLINES.length) return;
-
-  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Fully random pick, just never the same line twice in a row
   let lastIdx = -1;
@@ -476,18 +485,6 @@ const TAGLINES = [
         setTimeout(() => whenVisible(() => type(next, 0, speedFor(next))), 380);
       }
     });
-  }
-
-  if (reduce) {
-    // Calm mode: no typing, caret hidden, quiet swap every 6.5s
-    p.classList.add("swap");
-    el.textContent = TAGLINES[0];
-    lastIdx = 0;
-    setInterval(() => {
-      if (document.hidden) return;
-      el.textContent = pick();
-    }, 6500);
-    return;
   }
 
   // Start once the logo's entrance animation has settled
@@ -982,7 +979,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 
 /* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v4.1 (mineral bundle, routed, lazy, close-guard)");
+console.info("[Mantle] hub ready · v4.2 (typewriter always-on, mineral bundle, routed, lazy, close-guard)");
 
 /* Self-heal: refresh the shell's offline cache with this good copy */
 try {
