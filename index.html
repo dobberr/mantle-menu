@@ -17,27 +17,21 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root {
     color-scheme: dark;
-    --bg: #0b0b0f;
-    --surface: #121217;
-    --surface-2: #18181e;
+    --bg: #0a0a10;
+    --surface-hover: #14141b;
+    --surface-active: #191921;
     --border: rgba(255,255,255,0.07);
-    --border-strong: rgba(255,255,255,0.17);
-    --text-1: #f4f4f5;
+    --border-strong: rgba(255,255,255,0.14);
+    --text-1: #fafafa;
     --text-2: #a1a1aa;
     --text-3: #71717a;
-    --accent: #22d3ee;
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-body: 'Geist', sans-serif;
-    --r-surface: 16px;
-    --r-chip: 12px;
-    --r-go: 10px;
+    --text-4: #52525b;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -47,251 +41,262 @@
     min-height: 100dvh;
     background: var(--bg);
     color: var(--text-1);
-    font-family: var(--font-body);
-    font-size: 15px;
-    line-height: 1.55;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
     display: flex;
     flex-direction: column;
-    padding: 36px clamp(16px, 4vw, 22px);
-    overflow-x: hidden;
+    padding: 56px 20px 40px;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
   }
 
-  ::selection { background: rgba(34,211,238,0.25); }
-
-  .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-  .bg::before {
+  /* Dot grid background: cool lavender-tinted 28px tile.
+     Not a gradient, not a vignette, not a mesh. Just a texture. */
+  body::before {
     content: "";
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(820px 380px at 50% -10%, rgba(34,211,238,0.10), transparent 70%),
-      radial-gradient(560px 320px at 50% 112%, rgba(88,101,242,0.055), transparent 72%);
-  }
-  .bg::after {
-    content: "";
-    position: absolute; inset: 0;
-    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
-    background-size: 26px 26px;
-    -webkit-mask-image: radial-gradient(ellipse 72% 62% at 50% 6%, black 10%, transparent 72%);
-    mask-image: radial-gradient(ellipse 72% 62% at 50% 6%, black 10%, transparent 72%);
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='14' cy='14' r='1' fill='%238b95d4' fill-opacity='0.08'/%3E%3C/svg%3E");
+    background-repeat: repeat;
   }
 
-  main { position: relative; z-index: 1; width: 100%; max-width: 540px; margin: auto; }
+  ::selection { background: rgba(139,149,212,0.24); }
 
-  header { text-align: center; margin-bottom: 26px; }
-  header img {
+  main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- Header ---------- */
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  header .logo {
     display: block;
-    width: min(340px, 92%);
+    width: auto;
+    max-width: 200px;
     height: auto;
-    margin: 0 auto 12px;
+    margin: 0 auto 20px;
     user-select: none;
     -webkit-user-drag: none;
   }
 
-  /* Tagline: typewriter target. min-height keeps layout steady between
-     short and long lines. */
-  header p {
-    margin: 0 auto; max-width: 44ch;
-    font-size: 13.5px; font-weight: 400; letter-spacing: 0.01em;
-    color: var(--text-2);
-    min-height: 1.6em;
-    transition: opacity 0.18s var(--ease-out), transform 0.18s var(--ease-out), filter 0.18s var(--ease-out);
+  .tagline {
+    margin: 0 auto;
+    max-width: 44ch;
+    min-height: 3.3em;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-3);
+    line-height: 1.55;
+    letter-spacing: -0.002em;
+    text-align: center;
   }
+
   .caret {
     display: inline-block;
-    width: 2px; height: 1em;
-    margin-left: 2px;
-    vertical-align: -0.15em;
-    background: var(--accent);
-    border-radius: 1px;
-    animation: caretBlink 1.15s ease-in-out infinite;
+    width: 1px;
+    height: 0.95em;
+    margin-left: 3px;
+    vertical-align: -0.1em;
+    background: currentColor;
+    animation: caretBlink 1.1s steps(2, start) infinite;
   }
 
-  /* Tagline motion is intentionally OUTSIDE any prefers-reduced-motion
-     gate. The typewriter is core to Mantle's identity and the effect
-     is a per-character text reveal (no motion, no zoom, no parallax),
-     so it is safe to always run — including on school machines whose
-     OS has "show animations" turned off, which previously collapsed
-     the tagline into a static line that just swapped every few
-     seconds. */
-  header p.typing .caret { animation: none; opacity: 1; }
-  header p.out { opacity: 0; transform: translateY(4px); filter: blur(2px); }
   @keyframes caretBlink {
     0%, 100% { opacity: 1; }
-    50%      { opacity: 0.1; }
+    50%      { opacity: 0; }
   }
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .span-2 { grid-column: span 2; }
+  .tagline.typing .caret { animation: none; opacity: 1; }
 
-  .cell {
+  /* ---------- App rows ---------- */
+
+  .apps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .row {
+    --row-accent: rgba(255,255,255,0.5);
     position: relative;
-    display: flex; align-items: center; gap: 12px;
+    display: grid;
+    grid-template-columns: 38px 1fr 16px;
+    align-items: center;
+    gap: 14px;
     padding: 14px 16px;
-    background: var(--surface);
+    background: transparent;
     border: 1px solid var(--border);
-    border-radius: var(--r-surface);
-    cursor: pointer; text-align: left;
-    font-family: inherit; font-size: inherit; color: inherit;
-    text-decoration: none; user-select: none;
-    transition-property: background-color, border-color, transform, box-shadow;
-    transition-duration: 0.25s;
-    transition-timing-function: var(--ease-out);
-  }
-  .cell:hover {
-    background: var(--surface-2);
-    border-color: var(--border-strong);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-  }
-  .cell:active { transform: translateY(0) scale(0.985); transition-duration: 0.1s; }
-  .cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-  .cell::before {
-    content: ""; position: absolute; inset: 0; border-radius: inherit;
-    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 65%);
-    opacity: 0; transition: opacity 0.3s var(--ease-out);
-    pointer-events: none;
-  }
-  .cell::after {
-    content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
-    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), var(--glow-strong), transparent 65%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-    opacity: 0; transition: opacity 0.3s var(--ease-out);
-    pointer-events: none;
-  }
-  .cell:hover::before, .cell:hover::after { opacity: 1; }
-
-  .mineral { --glow: rgba(34,211,238,0.06);  --glow-strong: rgba(34,211,238,0.35);
-    background: linear-gradient(130deg, rgba(34,211,238,0.05), transparent 42%), var(--surface); }
-  .mineral:hover { background: linear-gradient(130deg, rgba(34,211,238,0.08), transparent 45%), var(--surface-2); }
-  .slate   { --glow: rgba(52,211,153,0.06);  --glow-strong: rgba(52,211,153,0.35); }
-  .magma   { --glow: rgba(251,146,60,0.06);  --glow-strong: rgba(251,146,60,0.35); }
-  .quiet   { --glow: rgba(88,101,242,0.07);  --glow-strong: rgba(88,101,242,0.45); }
-
-  .compact { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 46px; }
-  .compact .go { position: absolute; right: 12px; bottom: 12px; }
-
-  .chip {
-    width: 44px; height: 44px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: var(--r-chip);
-    border: 1px solid;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-  }
-  .chip svg { width: 21px; height: 21px; }
-  .chip-mineral { color: #22d3ee; background: rgba(34,211,238,0.08);  border-color: rgba(34,211,238,0.22); }
-  .chip-slate   { color: #34d399; background: rgba(52,211,153,0.08);  border-color: rgba(52,211,153,0.20); }
-  .chip-magma   { color: #fb923c; background: rgba(251,146,60,0.08);  border-color: rgba(251,146,60,0.20); }
-  .chip-discord { color: #7d87f6; background: rgba(88,101,242,0.12);  border-color: rgba(88,101,242,0.28); }
-
-  .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-  .compact .meta { gap: 2px; }
-  .name { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-1); }
-  .name-sm { font-size: 14.5px; }
-  .desc { font-size: 12.5px; color: var(--text-2); line-height: 1.45;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .compact .desc {
-    white-space: normal; line-height: 1.4;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    border-radius: 8px;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
   }
 
-  .go {
-    width: 32px; height: 32px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-3);
-    border: 1px solid var(--border);
-    border-radius: var(--r-go);
-    transition-property: background-color, border-color, color, transform;
-    transition-duration: 0.25s;
-    transition-timing-function: var(--ease-out);
+  .row:hover {
+    background: var(--surface-hover);
+    border-color: color-mix(in srgb, var(--row-accent) 34%, transparent);
   }
-  .go svg {
-    width: 15px; height: 15px;
-    translate: -1px 0;
-    transition: transform 0.3s var(--ease-spring);
-  }
-  .cell:hover .go { background: #ffffff; border-color: #ffffff; color: #0b0b0f; }
-  .cell:hover .go svg { transform: translateX(3px); }
-  .cell:active .go { transform: scale(0.94); }
 
-  .quiet { background: transparent; border: 1px dashed rgba(255,255,255,0.14); }
-  .quiet:hover {
-    background: rgba(255,255,255,0.02);
-    border-color: var(--border-strong);
-    transform: none;
-    box-shadow: none;
+  .row:active {
+    background: var(--surface-active);
   }
-  .quiet:hover::before, .quiet:hover::after { opacity: 0; }
-  .pill {
-    flex-shrink: 0;
-    font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+
+  .row:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--row-accent) 60%, transparent);
+    outline-offset: 2px;
+  }
+
+  .row[data-launch="mineral"] { --row-accent: #22d3ee; }
+  .row[data-launch="slate"]   { --row-accent: #34d399; }
+  .row[data-launch="magma"]   { --row-accent: #fb923c; }
+
+  .row-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--row-accent) 22%, transparent);
+    background: color-mix(in srgb, var(--row-accent) 8%, transparent);
+    color: var(--row-accent);
+    transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease);
+  }
+
+  .row:hover .row-icon {
+    border-color: color-mix(in srgb, var(--row-accent) 40%, transparent);
+    background: color-mix(in srgb, var(--row-accent) 12%, transparent);
+  }
+
+  .row-icon svg { width: 18px; height: 18px; display: block; }
+
+  .row-body { min-width: 0; }
+
+  .row-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--text-1);
-    border: 1px solid var(--border-strong);
-    border-radius: 999px;
-    padding: 5px 13px;
-    transition-property: background-color, border-color, color;
-    transition-duration: 0.2s;
-    transition-timing-function: var(--ease-out);
+    letter-spacing: -0.005em;
+    line-height: 1.3;
   }
-  .quiet:hover .pill { background: #5865F2; border-color: #5865F2; color: #ffffff; }
 
-  footer { margin-top: 34px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
-  footer .mark {
-    font-family: var(--font-display);
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.4em; text-indent: 0.4em; text-transform: uppercase;
-    color: var(--text-2);
-  }
-  footer .est {
-    font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  .row-desc {
+    display: block;
+    font-size: 12.5px;
     color: var(--text-3);
+    line-height: 1.4;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* Entrance + modal choreography still respects reduced-motion —
-     these are the heavier blur/translate effects. The tagline
-     typewriter above is deliberately excluded from this gate. */
-  @media (prefers-reduced-motion: no-preference) {
-    .rise {
-      opacity: 0;
-      animation: rise 0.7s var(--ease-out) forwards;
-      animation-delay: var(--delay, 0s);
-    }
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(6px); }
-      to   { opacity: 1; transform: none; filter: blur(0); }
-    }
-    .modal-backdrop { animation: backdropIn 0.22s ease both; }
-    .modal-card     { animation: cardIn 0.32s var(--ease-out) both; }
-    .modal-backdrop.closing { animation: backdropOut 0.16s ease both; }
-    .modal-backdrop.closing .modal-card { animation: cardOut 0.16s ease both; }
-    @keyframes backdropIn  { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes backdropOut { from { opacity: 1; } to { opacity: 0; } }
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(10px) scale(0.96); filter: blur(8px); }
-      to   { opacity: 1; transform: none; filter: blur(0); }
-    }
-    @keyframes cardOut {
-      from { opacity: 1; transform: none; filter: blur(0); }
-      to   { opacity: 0; transform: translateY(6px) scale(0.97); filter: blur(4px); }
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .cell, .go, .go svg, .pill, .cell::before, .cell::after { transition: none; }
-    .rise { opacity: 1; animation: none; }
+  .row-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-4);
+    transition: color 0.15s var(--ease), transform 0.15s var(--ease);
   }
 
-  @media (max-width: 620px) {
-    .grid { grid-template-columns: 1fr; }
-    .span-2 { grid-column: span 1; }
+  .row-arrow svg { width: 15px; height: 15px; display: block; }
+
+  .row:hover .row-arrow {
+    color: var(--row-accent);
+    transform: translateX(2px);
   }
-  @media (max-height: 640px) {
-    body { padding-top: 24px; padding-bottom: 24px; }
-    header { margin-bottom: 18px; }
-    header img { width: min(260px, 80%); }
+
+  /* ---------- Community (Discord) ----------
+     Deliberately NOT a product card. Different layout family:
+     hairline divider, then a compact text link with an inline
+     brand glyph. No icon box, no border, no card chrome. */
+
+  .community {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+  }
+
+  .community-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    color: var(--text-3);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: -0.002em;
+    transition: color 0.15s var(--ease);
+  }
+
+  .community-link:hover { color: var(--text-1); }
+  .community-link:focus-visible {
+    outline: 2px solid rgba(125,135,246,0.5);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .community-icon {
+    width: 15px;
+    height: 15px;
+    color: #7d87f6;
+    flex-shrink: 0;
+    transition: color 0.15s var(--ease);
+  }
+
+  .community-link:hover .community-icon { color: #8b95fa; }
+
+  .community-text {
+    flex: 1;
+    color: inherit;
+  }
+
+  .community-arrow {
+    width: 12px;
+    height: 12px;
+    color: var(--text-4);
+    flex-shrink: 0;
+    transition: color 0.15s var(--ease), transform 0.15s var(--ease);
+  }
+
+  .community-link:hover .community-arrow {
+    color: var(--text-2);
+    transform: translateX(2px);
+  }
+
+  /* ---------- Footer ---------- */
+
+  footer {
+    margin-top: auto;
+    padding-top: 36px;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--text-4);
+    letter-spacing: 0.01em;
+  }
+
+  @media (max-width: 480px) {
+    body { padding-top: 40px; }
+    header { margin-bottom: 28px; }
+    header .logo { max-width: 168px; }
   }
 </style>
 </head>
@@ -303,81 +308,91 @@
     setTimeout(function () {
       if (window.__mantleBooted) return;
       var b = document.createElement("div");
-      b.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10001;background:#16161b;border:1px solid rgba(255,255,255,0.17);color:#f4f4f5;font:12.5px/1.5 Arial,sans-serif;padding:10px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);text-align:center;max-width:88vw";
+      b.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10001;background:#18181b;border:1px solid rgba(255,255,255,0.14);color:#fafafa;font:12.5px/1.5 -apple-system,Arial,sans-serif;padding:10px 16px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);text-align:center;max-width:88vw";
       b.innerHTML = "<b>Mantle loaded an out-of-date copy.</b><br>Hold Ctrl and press R to refresh.";
       (document.body || document.documentElement).appendChild(b);
     }, 2500);
   </script>
 
-  <div class="bg" aria-hidden="true"></div>
-
   <main>
-    <header class="rise" style="--delay:0s">
-      <img src="https://mantleunblocked.github.io/assets/full%20logo.png" alt="Mantle" draggable="false">
-      <p id="tagline"><span id="tagText">A collection of web apps and utilities built for heavily networked environments like schools.</span><span class="caret" id="tagCaret" aria-hidden="true"></span></p>
+    <header>
+      <img class="logo" src="https://mantleunblocked.github.io/assets/full%20logo.png" alt="Mantle" draggable="false">
+      <p class="tagline" id="tagline"><span id="tagText">A collection of web apps and utilities built for heavily networked environments like schools.</span><span class="caret" id="tagCaret" aria-hidden="true"></span></p>
     </header>
 
-    <section class="grid" aria-label="Applications">
+    <div class="apps" aria-label="Applications">
 
-      <button class="cell mineral span-2 rise" style="--delay:.08s" data-launch="mineral">
-        <span class="chip chip-mineral" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        </span>
-        <span class="meta">
-          <span class="name">Mineral</span>
-          <span class="desc">Play Minecraft in your browser</span>
-        </span>
-        <span class="go" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-        </span>
-      </button>
-
-      <button class="cell compact slate rise" style="--delay:.14s" data-launch="slate">
-        <span class="chip chip-slate" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-        </span>
-        <span class="meta">
-          <span class="name">Slate</span>
-          <span class="desc">The ultimate AI for schoolwork</span>
-        </span>
-        <span class="go" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-        </span>
-      </button>
-
-      <button class="cell compact magma rise" style="--delay:.2s" data-launch="magma">
-        <span class="chip chip-magma" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-        </span>
-        <span class="meta">
-          <span class="name">Magma</span>
-          <span class="desc">Unblock any website with ease</span>
-        </span>
-        <span class="go" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-        </span>
-      </button>
-
-      <a class="cell quiet span-2 rise" style="--delay:.26s" href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer">
-        <span class="chip chip-discord" aria-hidden="true">
-          <svg viewBox="0 0 127.14 96.36" fill="currentColor">
-            <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.72-11A68.6,68.6,0,0,1,28.4,79.51c.85-.63,1.68-1.3,2.47-2a75.46,75.46,0,0,0,65.44,0c.79.68,1.62,1.35,2.47,2a68.52,68.52,0,0,1-10.37,5.87,74.83,74.83,0,0,0,6.72,11,105.56,105.56,0,0,0,31.07-18.83C129.7,50.12,123.81,27.31,107.7,8.07Z"/>
-            <circle cx="42.78" cy="47.54" r="8.76" fill="#5865F2"/>
-            <circle cx="84.36" cy="47.54" r="8.76" fill="#5865F2"/>
+      <button class="row" data-launch="mineral">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3 21 8 21 16 12 21 3 16 3 8 Z"/>
+            <path d="M3 8 12 13 21 8"/>
+            <path d="M12 13 12 21"/>
           </svg>
         </span>
-        <span class="meta">
-          <span class="name name-sm">Community Discord</span>
-          <span class="desc">Get updates and request features</span>
+        <span class="row-body">
+          <span class="row-name">Mineral</span>
+          <span class="row-desc">Play Minecraft in your browser</span>
         </span>
-        <span class="pill">Join</span>
+        <span class="row-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6 15 12 9 18"/>
+          </svg>
+        </span>
+      </button>
+
+      <button class="row" data-launch="slate">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 14 10 22 12 14 14 12 22 10 14 2 12 10 10 Z"/>
+          </svg>
+        </span>
+        <span class="row-body">
+          <span class="row-name">Slate</span>
+          <span class="row-desc">AI assistant for schoolwork and projects</span>
+        </span>
+        <span class="row-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6 15 12 9 18"/>
+          </svg>
+        </span>
+      </button>
+
+      <button class="row" data-launch="magma">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2 4 13.5 11 13.5 10.5 22 20 10.5 13 10.5 Z"/>
+          </svg>
+        </span>
+        <span class="row-body">
+          <span class="row-name">Magma</span>
+          <span class="row-desc">Bypass school network filters</span>
+        </span>
+        <span class="row-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6 15 12 9 18"/>
+          </svg>
+        </span>
+      </button>
+
+    </div>
+
+    <div class="community">
+      <a class="community-link" href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer">
+        <svg class="community-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20.32 4.37a19.79 19.79 0 0 0-4.88-1.52.07.07 0 0 0-.08.04 13.76 13.76 0 0 0-.61 1.25 18.29 18.29 0 0 0-5.5 0 12.55 12.55 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.29 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1 0-.13c.13-.1.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.37.3a.08.08 0 0 1 0 .12 12.3 12.3 0 0 1-1.87.89.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.85 19.85 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/>
+        </svg>
+        <span class="community-text">Join the community Discord</span>
+        <svg class="community-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3 21 3 21 9"/>
+          <path d="M10 14 21 3"/>
+          <path d="M21 14 21 19A2 2 0 0 1 19 21L5 21A2 2 0 0 1 3 19L3 5A2 2 0 0 1 5 3L10 3"/>
+        </svg>
       </a>
+    </div>
 
-    </section>
-
-    <footer class="rise" style="--delay:.32s">
-      <span class="mark">© 2026 Mantle</span>
-      <span class="est">Est 2025</span>
+    <footer>
+      © 2026 Mantle
     </footer>
   </main>
 
@@ -387,14 +402,8 @@
 /* ============================================================
    TAGLINES — rotating typewriter line under the logo.
    Each pick is fully random (never the same line twice in a row).
-   Add/edit freely; no other changes needed.
-
-   IMPORTANT: The typewriter runs UNCONDITIONALLY. We deliberately
-   do NOT honour prefers-reduced-motion here. School Windows PCs
-   commonly have system animations disabled, which used to collapse
-   this into a static line that swapped every 6.5s. The effect is a
-   per-character text reveal — no motion, no zoom, no parallax — so
-   it is safe to always run.
+   Runs UNCONDITIONALLY (no prefers-reduced-motion gate) so it
+   works on school Windows PCs with system animations disabled.
    ============================================================ */
 const TAGLINES = [
   "Unblocked games for when the teacher isn't looking",
@@ -414,7 +423,7 @@ const TAGLINES = [
   "If you find a bug, just ignore it and keep playing",
   "This site is 100% safe. I promise.",
   "Heyyyyy, this isn't your math homework",
-  "My lawyer has advised me not to finish this senten—",
+  "My lawyer has advised me not to finish this senten",
   "I can see your IP (that's a joke, please don't sue me)",
   "You miss 95% of the shots you don't take",
   "95% of gamblers quit right before they win",
@@ -440,7 +449,6 @@ const TAGLINES = [
   const p = document.getElementById("tagline");
   if (!el || !p || !TAGLINES.length) return;
 
-  // Fully random pick, just never the same line twice in a row
   let lastIdx = -1;
   function pick() {
     let i;
@@ -449,11 +457,8 @@ const TAGLINES = [
     return TAGLINES[i];
   }
 
-  // Slower typing: speed scales with line length, floor raised so
-  // even short lines type at a relaxed pace
   const speedFor = s => Math.max(24, Math.min(62, Math.round(1700 / Math.max(1, s.length))));
 
-  // Defer every step while the tab is hidden (background tabs shouldn't churn)
   const whenVisible = cb => {
     if (!document.hidden) return cb();
     const iv = setInterval(() => { if (!document.hidden) { clearInterval(iv); cb(); } }, 300);
@@ -461,22 +466,19 @@ const TAGLINES = [
 
   function type(text, pos, delay) {
     whenVisible(() => {
-      p.classList.remove("out");
       p.classList.add("typing");
       el.textContent = text.slice(0, pos);
       if (pos < text.length) {
-        // per-char jitter: typewriter feel without mechanical rhythm
         setTimeout(() => type(text, pos + 1, delay), delay + Math.random() * delay * 0.6);
       } else {
         p.classList.remove("typing");
-        setTimeout(() => whenVisible(() => del(text, text.length)), 2400);
+        setTimeout(() => whenVisible(() => del(text, text.length)), 2600);
       }
     });
   }
 
   function del(text, pos) {
     whenVisible(() => {
-      p.classList.add("out");
       el.textContent = text.slice(0, pos);
       if (pos > 0) {
         setTimeout(() => del(text, pos - 1), 11);
@@ -487,7 +489,6 @@ const TAGLINES = [
     });
   }
 
-  // Start once the logo's entrance animation has settled
   setTimeout(() => {
     const first = pick();
     type(first, 0, speedFor(first));
@@ -497,16 +498,9 @@ const TAGLINES = [
 /* ============================================================
    ROUTING LAYER (Slate / Magma, and Mineral's fallback route)
    - The menu contains NO app URLs, in any form.
-   - r.txt (separate bland repo) stores each URL base64-encoded,
-     so the routing file is opaque at rest: in the repo, in
-     transit, in DevTools' response viewer, and in localStorage.
-   - Routes are fetched LAZILY: opening/inspecting the menu
-     triggers no routing request at all. Only an actual launch
-     does — and at that moment the app's own domain necessarily
-     appears in the Network tab. That part is not hideable.
-   - Mineral's PRIMARY delivery no longer uses this layer (it is
-     fetched as a single-file bundle from the mirror chain below);
-     the r.txt "mineral" entry survives only as the iframe fallback.
+   - r.txt (separate bland repo) stores each URL base64-encoded.
+   - Routes are fetched LAZILY: only an actual launch triggers
+     a routing request. Idle viewers never touch the routing file.
    ============================================================ */
 const ROUTE_SOURCES = [
   "https://cdn.jsdelivr.net/gh/dobberr/cfg@main/r.txt",
@@ -519,9 +513,6 @@ const ROUTES_CACHE = "mantle.routes.cache.v3";
 let routesData = null;
 let routesPromise = null;
 
-// Extracts the JSON object from the file, decodes each base64
-// value, and validates it is an https URL. Throws on anything
-// malformed — malformed data is never cached.
 function parseRoutes(text) {
   const s = text.indexOf("{");
   const e = text.lastIndexOf("}");
@@ -556,7 +547,6 @@ function getRoutes() {
         console.warn("[Mantle] route source failed (" + (e && e.message ? e.message : e) + ")");
       }
     }
-    // Every source unreachable: last cached copy keeps launches working
     try {
       const cached = localStorage.getItem(ROUTES_CACHE);
       if (cached && /MANTLE_ROUTES/.test(cached)) {
@@ -575,8 +565,6 @@ function getRoutes() {
    assets.epw embedded as a data URI). Fetched fresh every launch
    and written directly into the popup. jsDelivr/statically are
    excluded: both cap files at ~20MB and the bundle is ~37MB.
-   raw.githubusercontent revalidates via etag, so unchanged bundles
-   cost almost nothing after the first download.
    ============================================================ */
 const MINERAL_SOURCES = [
   "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html",
@@ -586,28 +574,26 @@ const MINERAL_SOURCES = [
 ];
 
 const MINERAL_SPLASH_HTML = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-  html,body{height:100%;margin:0;background:#030303;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:16px;font-family:Arial,sans-serif}
-  .ring{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);
+  html,body{height:100%;margin:0;background:#0a0a10;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;font-family:-apple-system,Arial,sans-serif}
+  .ring{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.10);
     border-top-color:rgba(255,255,255,0.55);animation:spin 0.8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  p{color:#71717a;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;margin:0}
-  #mProg{color:#a1a1aa;font-size:11px;letter-spacing:0.05em;margin:0;min-height:1.4em}
+  p{color:#71717a;font-size:12px;letter-spacing:0.02em;margin:0}
+  #mProg{color:#a1a1aa;font-size:11.5px;margin:0;min-height:1.4em;font-variant-numeric:tabular-nums}
 </style></head><body><div class="ring"></div><p>Loading Mineral</p><p id="mProg"></p></body></html>`;
 
 function mineralErrorHtml(reason) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
-  <body style="height:100vh;margin:0;background:#030303;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif">
+  <body style="height:100vh;margin:0;background:#0a0a10;display:flex;align-items:center;justify-content:center;font-family:-apple-system,Arial,sans-serif">
     <div style="text-align:center;color:#a1a1aa;max-width:420px;padding:20px">
-      <h2 style="color:#fafafa;font-size:16px;margin:0 0 8px">Mineral couldn't load</h2>
+      <h2 style="color:#fafafa;font-size:16px;font-weight:600;margin:0 0 8px">Mineral couldn't load</h2>
       <p style="font-size:13px;line-height:1.6;margin:0 0 6px">${reason}</p>
-      <p style="font-size:12px;color:#71717a;margin:0">Close this window and relaunch from Mantle.</p>
+      <p style="font-size:12.5px;color:#71717a;margin:0">Close this window and relaunch from Mantle.</p>
     </div>
   </body></html>`;
 }
 
-// Streams the response with progress reporting when the browser
-// supports it; falls back to a plain text() read otherwise.
 async function fetchBundleWithProgress(res, onProgress) {
   if (!res.body || !res.body.getReader) return res.text();
   const reader = res.body.getReader();
@@ -659,16 +645,13 @@ function keepSpoofed(d, spoof) {
 
 /* ============================================================
    CLOSE GUARD — native "Leave site?" dialog on close/reload.
-   CRITICAL: beforeunload fires at the WINDOW, not the document —
-   the listener must be registered on the window object itself.
-   Chrome/Edge only arm the dialog after the user interacts with
-   the window (a click inside the app iframe counts); the dialog
-   text is browser-controlled and cannot be customized.
+   beforeunload fires at the WINDOW, so the listener must be
+   registered on the window object itself.
    ============================================================ */
 function armCloseGuard(win) {
   var guard = function (e) {
-    e.preventDefault();     // modern standard-compliant path
-    e.returnValue = "";     // legacy path Chrome/Edge/Firefox require
+    e.preventDefault();
+    e.returnValue = "";
   };
   win.addEventListener("beforeunload", guard);
   win.onbeforeunload = guard;
@@ -680,14 +663,12 @@ function armCloseGuard(win) {
 function closeModal(id) {
   var m = document.getElementById(id);
   if (!m) return;
-  m.classList.add("closing");
-  m.addEventListener("animationend", function (e) {
-    if (e.target === m) m.remove();
-  }, { once: true });
+  m.style.opacity = "0";
+  setTimeout(function () { m.remove(); }, 160);
 }
 
 /* ============================================================
-   LAUNCHERS — routes fetched on demand, decoded in memory only
+   LAUNCHERS
    ============================================================ */
 async function resolveRoute(app) {
   let routes;
@@ -715,9 +696,7 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000;overflow:hidden;width:100vw;height:100vh;"></body></html>`);
   d.close();
 
-  // Register on the WINDOW — this is what makes the guard actually fire
   armCloseGuard(win);
-
   keepSpoofed(d, pickSpoof());
 
   var frame = d.createElement('iframe');
@@ -733,16 +712,13 @@ function launchWithSpoof(url, showNoticeBanner = false) {
 
   if (showNoticeBanner) {
     var banner = d.createElement('div');
-    banner.style.cssText = "position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 480px; background: rgba(69, 26, 3, 0.9); border: 1px solid rgba(245, 158, 11, 0.3); color: #fde68a; backdrop-filter: blur(8px); padding: 16px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); display: flex; align-items: flex-start; gap: 12px; font-family: sans-serif; opacity: 0; transition: opacity 0.5s ease; box-sizing: border-box;";
+    banner.style.cssText = "position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 440px; background: #18181b; border: 1px solid rgba(255,255,255,0.14); color: #e4e4e7; padding: 14px 16px; border-radius: 10px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); display: flex; align-items: flex-start; gap: 12px; font-family: -apple-system, Arial, sans-serif; opacity: 0; transition: opacity 0.3s ease; box-sizing: border-box;";
     banner.innerHTML = `
-      <svg style="width: 20px; height: 20px; color: #fbbf24; flex-shrink: 0; margin-top: 2px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-      </svg>
-      <div style="flex: 1; font-size: 13px; line-height: 1.5; min-w-0;">
-        <strong style="display: block; color: #fcd34d; margin-bottom: 4px; font-size: 14px;">Account Inactivity Notice</strong>
-        To keep Slate completely free for active users, any accounts left inactive for 3+ months are automatically deleted to free up system space. You can always remake an account if yours gets removed.
+      <div style="flex: 1; font-size: 12.5px; line-height: 1.55;">
+        <strong style="display: block; color: #fafafa; margin-bottom: 3px; font-size: 13px; font-weight: 600;">Account inactivity notice</strong>
+        <span style="color: #a1a1aa;">To keep Slate free for active users, any accounts left inactive for 3 months or more are automatically deleted. You can always remake an account if yours gets removed.</span>
       </div>
-      <button style="background: transparent; border: none; color: rgba(251, 191, 36, 0.6); font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0;" onmouseover="this.style.color='#fde68a'" onmouseout="this.style.color='rgba(251, 191, 36, 0.6)'">&times;</button>
+      <button style="background: transparent; border: none; color: #71717a; font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0;" aria-label="Close">&times;</button>
     `;
     d.body.appendChild(banner);
 
@@ -750,20 +726,19 @@ function launchWithSpoof(url, showNoticeBanner = false) {
     var timeoutId;
     function closeBanner() {
       banner.style.opacity = '0';
-      setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 500);
+      setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 300);
       clearTimeout(timeoutId);
     }
     closeBtn.onclick = closeBanner;
-    setTimeout(() => { banner.style.opacity = '1'; }, 100);
+    setTimeout(() => { banner.style.opacity = '1'; }, 80);
     timeoutId = setTimeout(closeBanner, 20000);
   }
 }
 
 /* ============================================================
-   MINERAL LAUNCHER — bundle fetch → write into popup.
+   MINERAL LAUNCHER — bundle fetch -> write into popup.
    If every mirror fails, falls back to the r.txt "mineral" route
-   as an iframe inside this same popup, so a raw block never
-   fully kills Mineral.
+   as an iframe inside this same popup.
    ============================================================ */
 async function launchMineral() {
   var win = window.open("about:blank", "_blank", WINDOW_FEATURES);
@@ -788,8 +763,6 @@ async function launchMineral() {
           ? fmtMB(got) + " / " + fmtMB(total) + " MB"
           : fmtMB(got) + " MB loaded";
       });
-      // Fingerprint: the real bundle is huge and contains the game opts.
-      // Rejects school block pages served with 200.
       if (text.length < 100000 || !/eaglercraftXOpts/.test(text))
         throw new Error("Response wasn't the Mineral bundle");
 
@@ -802,12 +775,10 @@ async function launchMineral() {
     }
   }
 
-  // Fallback: the classic iframe route from r.txt (still points at
-  // the same repo served over GitHub Pages).
   try {
     const fallbackUrl = await resolveRoute("mineral");
     if (fallbackUrl) {
-      console.warn("[Mantle] all Mineral mirrors unreachable — falling back to iframe route");
+      console.warn("[Mantle] all Mineral mirrors unreachable, falling back to iframe route");
       d.open();
       d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000;overflow:hidden;width:100vw;height:100vh;"></body></html>`);
       d.close();
@@ -825,60 +796,62 @@ async function launchMineral() {
   d.open(); d.write(mineralErrorHtml("Every download mirror was unreachable on this network.")); d.close();
 }
 
+/* ============================================================
+   SLATE MODALS — legal docs + welcome gate
+   ============================================================ */
 function openSlateLegalDocs() {
   var existingModal = document.getElementById('slate-privacy-modal');
   if (existingModal) existingModal.remove();
 
   var modal = document.createElement('div');
   modal.id = "slate-privacy-modal";
-  modal.className = "modal-backdrop";
-  modal.style = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', Arial, sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
+  modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
   modal.innerHTML = `
-    <div class="modal-card" style="background: #0e0e13; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 22px; width: 100%; max-width: 600px; color: #f4f4f5; box-shadow: 0 24px 60px rgba(0,0,0,0.55); max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px;">
-        <h2 style="font-size: 18px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; margin: 0;">Slate Legal Agreements</h2>
-        <button onclick="closeModal('slate-privacy-modal')" style="background: transparent; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
+    <div style="background: #0f0f14; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 24px; width: 100%; max-width: 580px; color: #e4e4e7; max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 14px;">
+        <h2 style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Slate legal agreements</h2>
+        <button onclick="closeModal('slate-privacy-modal')" style="background: transparent; border: none; color: #71717a; font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: 4px;" aria-label="Close">&times;</button>
       </div>
 
-      <div style="font-size: 13px; line-height: 1.6; color: #a1a1aa;">
-        <p style="margin-bottom: 16px;">Last Updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p>
+      <div style="font-size: 13px; line-height: 1.65; color: #a1a1aa;">
+        <p style="margin: 0 0 18px;">Last updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p>
 
-        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 24px 0 10px 0; border-left: 2px solid #22d3ee; padding-left: 8px;">Part 1: Terms of Service</h3>
+        <h3 style="font-size: 13px; font-weight: 600; color: #fafafa; margin: 22px 0 10px 0;">Part 1: Terms of Service</h3>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.1 Acceptance and Capacity</h4>
-        <p style="margin-bottom: 12px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p>
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">1.1 Acceptance and capacity</h4>
+        <p style="margin: 0 0 14px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.2 Acceptable Use</h4>
-        <p style="margin-bottom: 12px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p>
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">1.2 Acceptable use</h4>
+        <p style="margin: 0 0 14px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">1.3 Limitation of Liability</h4>
-        <p style="margin-bottom: 12px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p>
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">1.3 Limitation of liability</h4>
+        <p style="margin: 0 0 22px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p>
 
-        <div style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px; padding: 14px; margin-bottom: 24px;">
-          <h4 style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #ef4444; margin: 0 0 6px 0;">1.4 Slate [UNCENSORED] Tier Agreement</h4>
-          <p style="font-size: 12px; color: #fca5a5; margin: 0; line-height: 1.5;">
-            Registered users executing queries via the invite-only <code>Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters; therefore, the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.
+        <div style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.18); border-radius: 8px; padding: 14px; margin-bottom: 22px;">
+          <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #f87171; margin: 0 0 6px 0;">1.4 Slate [UNCENSORED] tier agreement</h4>
+          <p style="font-size: 12.5px; color: #fca5a5; margin: 0; line-height: 1.55;">
+            Registered users executing queries via the invite-only <code style="font-family: 'Geist Mono', monospace; font-size: 11.5px;">Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters, so the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.
           </p>
         </div>
 
-        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin: 0 0 10px 0; border-left: 2px solid #22d3ee; padding-left: 8px;">Part 2: Privacy Policy</h3>
-        <p style="margin-bottom: 12px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p>
+        <h3 style="font-size: 13px; font-weight: 600; color: #fafafa; margin: 0 0 10px 0;">Part 2: Privacy Policy</h3>
+        <p style="margin: 0 0 14px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p>
 
-        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; margin: 0 0 4px 0;">2.1 Data We Collect</h4>
-        <ul style="margin: 0 0 14px 0; padding-left: 20px; list-style-type: disc;">
+        <h4 style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 5px 0;">2.1 Data we collect</h4>
+        <ul style="margin: 0 0 8px 0; padding-left: 20px;">
           <li style="margin-bottom: 4px;">Account username profile data</li>
           <li style="margin-bottom: 4px;">Authentication email address</li>
           <li style="margin-bottom: 4px;">Last active system timestamps</li>
           <li style="margin-bottom: 4px;">Account initialization timestamps</li>
           <li style="margin-bottom: 4px;">Cumulative totals of prompts sent and token payloads utilized</li>
         </ul>
-
       </div>
 
-      <button onclick="closeModal('slate-privacy-modal')" style="width: 100%; margin-top: 16px; padding: 12px; background: #ffffff; color: #000000; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 13px;">Close Document</button>
+      <button onclick="closeModal('slate-privacy-modal')" style="width: 100%; margin-top: 20px; padding: 11px; background: #fafafa; color: #0a0a10; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 13px; font-family: inherit;">Close</button>
     </div>
   `;
   document.body.appendChild(modal);
+  requestAnimationFrame(() => { modal.style.opacity = "1"; });
 }
 
 function showSlateModal(onAccept) {
@@ -888,43 +861,43 @@ function showSlateModal(onAccept) {
   var slateLogo = "https://mantleunblocked.github.io/assets/Slate/Slate.png";
   var modal = document.createElement('div');
   modal.id = "slate-welcome-modal";
-  modal.className = "modal-backdrop";
-  modal.style = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', Arial, sans-serif; backdrop-filter: blur(4px); box-sizing: border-box;";
+  modal.style.cssText = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
   modal.innerHTML = `
-    <div class="modal-card" style="background: #0e0e13; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 22px; width: 100%; max-width: 480px; color: #f4f4f5; box-shadow: 0 24px 60px rgba(0,0,0,0.55); max-height: 90vh; overflow-y: auto; box-sizing: border-box;">
+    <div style="background: #0f0f14; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 24px; width: 100%; max-width: 460px; color: #e4e4e7; max-height: 90vh; overflow-y: auto; box-sizing: border-box;">
       <div style="text-align: center; margin-bottom: 20px;">
-        <img src="${slateLogo}" alt="Slate" style="width: 48px; height: 48px; border-radius: 12px; margin-bottom: 12px; display: inline-block;">
-        <h2 style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0;">Welcome to Slate</h2>
-        <p style="font-size: 13px; color: #a1a1aa; margin-top: 6px;">Your AI helper for schoolwork and projects.</p>
+        <img src="${slateLogo}" alt="Slate" style="width: 40px; height: 40px; border-radius: 8px; margin-bottom: 12px; display: inline-block;">
+        <h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Welcome to Slate</h2>
+        <p style="font-size: 13px; color: #a1a1aa; margin: 5px 0 0 0;">Your AI helper for schoolwork and projects.</p>
       </div>
 
-      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; margin-bottom: 18px; line-height: 1.5;">
-        <h3 style="font-size: 11px; text-transform: uppercase; color: #8b8b94; letter-spacing: 0.05em; margin: 0 0 8px 0; font-weight: 600;">What Slate Can Do</h3>
-        <p style="font-size: 12px; color: #a1a1aa; margin: 0 0 12px 0;">
-          Slate is designed to assist you directly in your browser. It can help you draft essays, summarize long articles, brainstorm fresh ideas for projects, explain complex math concepts step-by-step, and intelligently organize your study notes.
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 16px; margin-bottom: 18px; line-height: 1.55;">
+        <h3 style="font-size: 10.5px; text-transform: uppercase; color: #71717a; letter-spacing: 0.08em; margin: 0 0 8px 0; font-weight: 500;">What Slate can do</h3>
+        <p style="font-size: 12.5px; color: #a1a1aa; margin: 0 0 12px 0;">
+          Slate assists you directly in your browser. It can help you draft essays, summarize long articles, brainstorm project ideas, explain math concepts step by step, and organize your study notes.
         </p>
-        <p style="font-size: 11.5px; color: #8b8b94; margin: 0; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
-          <strong style="color: #d4d4d8;">Need a completely unrestricted model?</strong> We offer a private, uncensored version of Slate designed for home use. This version operates completely free of standard safety guardrails, giving you absolute freedom over your prompts. You can request access in our <a href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer" style="color: #5865F2; text-decoration: underline;">Discord server</a>.
+        <p style="font-size: 12px; color: #71717a; margin: 0; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <strong style="color: #d4d4d8; font-weight: 500;">Need a completely unrestricted model?</strong> We offer a private, uncensored version of Slate designed for home use. This version operates completely free of standard safety guardrails, giving you absolute freedom over your prompts. You can request access in our <a href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer" style="color: #fafafa; text-decoration: underline; text-underline-offset: 2px;">Discord server</a>.
         </p>
       </div>
 
-      <div style="margin-bottom: 20px; background: rgba(34, 211, 238, 0.05); padding: 14px; border-radius: 10px; border: 1.5px solid rgba(34, 211, 238, 0.55);">
+      <div style="margin-bottom: 18px; background: rgba(255,255,255,0.02); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
         <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
-          <input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 3px; transform: scale(1.15); accent-color: #22d3ee; cursor: pointer; flex-shrink: 0;">
-          <span style="font-size: 12px; color: #f4f4f5; font-weight: 500; line-height: 1.5;">
+          <input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 2px; width: 15px; height: 15px; accent-color: #fafafa; cursor: pointer; flex-shrink: 0;">
+          <span style="font-size: 12.5px; color: #d4d4d8; line-height: 1.55;">
             I acknowledge that I have read and agree to the
-            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #22d3ee; font-weight: 700; text-decoration: underline;">Terms of Service</a>
+            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #fafafa; font-weight: 500; text-decoration: underline; text-underline-offset: 2px;">Terms of Service</a>
             and
-            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #22d3ee; font-weight: 700; text-decoration: underline;">Privacy Policy</a>.
+            <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #fafafa; font-weight: 500; text-decoration: underline; text-underline-offset: 2px;">Privacy Policy</a>.
             I understand my legal responsibilities regarding acceptable use.
           </span>
         </label>
       </div>
 
-      <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 12px; background: #232329; color: #7c7c85; border: none; border-radius: 10px; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: background-color 0.2s, color 0.2s;">Accept agreements to continue</button>
+      <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 11px; background: #18181b; color: #52525b; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-weight: 500; cursor: not-allowed; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;">Accept agreements to continue</button>
     </div>
   `;
   document.body.appendChild(modal);
+  requestAnimationFrame(() => { modal.style.opacity = "1"; });
 
   var btn = modal.querySelector('#welcome-dismiss-btn');
   var checkbox = modal.querySelector('#welcome-terms-checkbox');
@@ -933,14 +906,16 @@ function showSlateModal(onAccept) {
     if (checkbox.checked) {
       btn.disabled = false;
       btn.innerText = 'Launch Slate';
-      btn.style.background = '#ffffff';
-      btn.style.color = '#000000';
+      btn.style.background = '#fafafa';
+      btn.style.color = '#0a0a10';
+      btn.style.borderColor = '#fafafa';
       btn.style.cursor = 'pointer';
     } else {
       btn.disabled = true;
       btn.innerText = 'Accept agreements to continue';
-      btn.style.background = '#232329';
-      btn.style.color = '#7c7c85';
+      btn.style.background = '#18181b';
+      btn.style.color = '#52525b';
+      btn.style.borderColor = 'rgba(255,255,255,0.06)';
       btn.style.cursor = 'not-allowed';
     }
   }
@@ -965,23 +940,21 @@ async function launchMagma() {
   if (url) launchWithSpoof(url, false);
 }
 
-// Listener wiring — no inline onclick
+/* ============================================================
+   WIRING
+   ============================================================ */
 document.querySelectorAll("[data-launch]").forEach(function (btn) {
   btn.addEventListener("click", function () {
     var map = { mineral: launchMineral, slate: launchSlate, magma: launchMagma };
     var fn = map[btn.getAttribute("data-launch")];
     if (fn) fn();
   });
-  // Pre-warm routes on first press of a launch button: shaves the
-  // fetch latency off the click, without ever fetching for idle viewers
   btn.addEventListener("pointerdown", function () { getRoutes(); }, { once: true });
 });
 
-/* Launch capability live — disarm the watchdog */
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v4.2 (typewriter always-on, mineral bundle, routed, lazy, close-guard)");
+console.info("[Mantle] hub ready · v4.5 (tinted bg, discord separated)");
 
-/* Self-heal: refresh the shell's offline cache with this good copy */
 try {
   if (window.parent && window.parent !== window) {
     window.parent.localStorage.setItem(
@@ -989,22 +962,7 @@ try {
       "<!DOCTYPE html>\n" + document.documentElement.outerHTML
     );
   }
-} catch (e) { /* cross-origin parent — nothing to heal */ }
-
-/* Decorative layer — spotlight + entrance cleanup, last */
-document.querySelectorAll(".cell").forEach(function (card) {
-  card.addEventListener("pointermove", function (e) {
-    var r = card.getBoundingClientRect();
-    card.style.setProperty("--mx", (e.clientX - r.left) + "px");
-    card.style.setProperty("--my", (e.clientY - r.top) + "px");
-  });
-});
-
-document.querySelectorAll(".rise").forEach(function (el) {
-  el.addEventListener("animationend", function (e) {
-    if (e.target === el) el.classList.remove("rise");
-  }, { once: true });
-});
+} catch (e) { /* cross-origin parent */ }
 </script>
 </body>
 </html>
