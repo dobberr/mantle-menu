@@ -312,6 +312,31 @@
     .community-text { animation: none; background: none; }
   }
 
+  /* ---------- Modal close button ---------- */
+
+  .modal-close {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #d4d4d8;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .modal-close:hover {
+    background: rgba(255,255,255,0.13);
+    border-color: rgba(255,255,255,0.22);
+    color: #fafafa;
+  }
+  .modal-close:focus-visible {
+    outline: 2px solid rgba(255,255,255,0.4);
+    outline-offset: 2px;
+  }
+
   /* ---------- Footer ---------- */
 
   footer {
@@ -459,14 +484,18 @@
 
   const CELL = 24;
   const REACH = 2.6;
-  const AMBIENT = 2;
   const MAX_LIT = 180;
   const AVOID = "[data-grid-avoid]";
   const AVOID_BLOCK = "data-grid-avoid-block";
 
-  // Orange -> green -> blue. No purple, no magenta.
+  // Hue ladder down the field: orange at the top (30), blue in
+  // the middle (220), green at the bottom (125). Piecewise
+  // linear; the path from orange to blue passes through green
+  // briefly in the upper-mid, then green becomes dominant at
+  // the bottom.
   const HUE_TOP = 30;
-  const HUE_SPAN = -190;
+  const HUE_MID = 220;
+  const HUE_BOT = 125;
 
   // Tint ladder for a dark ground.
   const TINTS = [72, 65, 58, 51, 44];
@@ -540,9 +569,14 @@
     return FAINT + (1 - FAINT) * (t * t);
   }
 
+  function hueFor(t) {
+    if (t < 0.5) return HUE_TOP + (HUE_MID - HUE_TOP) * (t / 0.5);
+    return HUE_MID + (HUE_BOT - HUE_MID) * ((t - 0.5) / 0.5);
+  }
+
   function ink(row) {
     const t = rows > 1 ? Math.min(1, row / (rows - 1)) : 0;
-    const hue = (((HUE_TOP - t * HUE_SPAN) % 360) + 360) % 360;
+    const hue = ((hueFor(t) % 360) + 360) % 360;
     const tint = TINTS[Math.floor(Math.random() * TINTS.length)];
     return "hsl(" + Math.round(hue) + " 94% " + tint + "%)";
   }
@@ -617,20 +651,31 @@
     if (!pending) pending = requestAnimationFrame(paint);
   }
 
+  // Ambient drift: a small soft cluster every few seconds. The
+  // centre of the cluster holds its light longest; cells on the
+  // edge fade first, so the cluster dissolves from outside in.
+  // Reads as a brief bloom appearing on the field, rather than
+  // isolated squares popping in and out at random.
   let visible = true;
   let beat = 0;
   function drift() {
-    beat = window.setTimeout(drift, 1400 + Math.random() * 1800);
+    beat = window.setTimeout(drift, 1800 + Math.random() * 2200);
     if (!visible || document.hidden) return;
-    for (let i = 0; i < AMBIENT; i++) {
-      light(
-        Math.floor(Math.random() * cols),
-        Math.floor(Math.random() * rows),
-        900 + Math.random() * 1600
-      );
+    const cx = Math.floor(Math.random() * cols);
+    const cy = Math.floor(Math.random() * rows);
+    const radius = 1.4 + Math.random() * 1.6;
+    const span = Math.ceil(radius);
+    for (let dy = -span; dy <= span; dy++) {
+      for (let dx = -span; dx <= span; dx++) {
+        const away = Math.hypot(dx, dy);
+        if (away > radius) continue;
+        const nearness = 1 - away / radius;
+        const hold = 500 + nearness * 1300;
+        light(cx + dx, cy + dy, hold);
+      }
     }
   }
-  beat = window.setTimeout(drift, 500);
+  beat = window.setTimeout(drift, 700);
 
   const sight = new IntersectionObserver(entries => {
     const entry = entries[0];
@@ -1064,7 +1109,7 @@ function openSlateLegalDocs() {
     <div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 28px; width: 100%; max-width: 640px; color: #e4e4e7; max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;">
         <h2 style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Slate legal agreements</h2>
-        <button onclick="closeModal('slate-privacy-modal')" style="background: transparent; border: none; color: #71717a; font-size: 22px; cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: 4px;" aria-label="Close">&times;</button>
+        <button class="modal-close" onclick="closeModal('slate-privacy-modal')" aria-label="Close">&times;</button>
       </div>
 
       <div style="font-size: 14px; line-height: 1.65; color: #b0b0b3;">
@@ -1105,6 +1150,13 @@ function openSlateLegalDocs() {
     </div>
   `;
   document.body.appendChild(modal);
+
+  // Click-outside-to-close: only fires if the click landed on the
+  // backdrop, not on the inner card.
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal('slate-privacy-modal');
+  });
+
   requestAnimationFrame(() => { modal.style.opacity = "1"; });
 }
 
@@ -1204,7 +1256,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v5.3 (cleanup)");
+console.info("[Mantle] hub ready · v5.4 (visible modal close, swapped hue ramp, cluster ambient)");
 
 try {
   if (window.parent && window.parent !== window) {
