@@ -338,6 +338,35 @@
     outline-offset: 2px;
   }
 
+  /* ---------- Basalt link chooser ---------- */
+
+  .server-option {
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: #e4e4e7;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .server-option:hover {
+    background: #1d1d1e;
+    border-color: rgba(239,68,68,0.34);
+  }
+  .server-option:focus-visible {
+    outline: 2px solid rgba(239,68,68,0.5);
+    outline-offset: 2px;
+  }
+  .server-option .label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fafafa;
+  }
+
   /* ---------- Footer ---------- */
 
   footer {
@@ -1096,40 +1125,51 @@ async function launchMineral() {
   d.open(); d.write(mineralErrorHtml("Every download mirror was unreachable on this network.")); d.close();
 }
 
-/* Basalt sources. Both are probed silently at launch time, and the
-   first one that responds is used. If both fail, the primary is
-   launched anyway so the user sees the network error rather than
-   nothing. The URLs are never surfaced in the UI. */
-const BASALT_SOURCES = [
-  "https://basalt.mantle.dpdns.org/",
-  "https://basalt.mantleunblocked.workers.dev"
-];
+/* Basalt link chooser — pops a small modal that lets the user
+   pick between the two links, then launches via the same spoofed
+   popup + iframe pattern used by Slate and Magma. URLs are
+   hardcoded here rather than routed through r.txt because the
+   chooser needs both options available immediately, without
+   waiting on a fetch. The raw hostnames are not shown in the
+   modal, so students can't screenshot and report them. */
+function showBasaltChooser() {
+  var existing = document.getElementById('basalt-chooser-modal');
+  if (existing) existing.remove();
 
-// Fire-and-forget reachability probe. Uses no-cors so the fetch
-// resolves for any reachable origin regardless of CORS headers.
-// Rejects only when the request itself fails (DNS block, network
-// refusal, timeout), which is exactly what we want to detect.
-function probeHost(url) {
-  return new Promise(resolve => {
-    let settled = false;
-    const done = ok => { if (!settled) { settled = true; resolve(ok); } };
-    const timer = setTimeout(() => done(false), 2500);
-    fetch(url, { mode: "no-cors", cache: "no-cache" })
-      .then(() => { clearTimeout(timer); done(true); })
-      .catch(() => { clearTimeout(timer); done(false); });
-  });
-}
+  var modal = document.createElement('div');
+  modal.id = "basalt-chooser-modal";
+  modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
+  modal.innerHTML = `
+    <div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 26px; width: 100%; max-width: 440px; color: #e4e4e7; box-sizing: border-box;">
+      <h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 6px; color: #fafafa;">Choose a Basalt link</h2>
+      <p style="font-size: 13px; color: #b0b0b3; margin: 0 0 18px; line-height: 1.55;">If the first one doesn't load on your network, try the other.</p>
 
-async function launchBasalt() {
-  for (const url of BASALT_SOURCES) {
-    if (await probeHost(url)) {
+      <button class="server-option" data-basalt-url="https://basalt.mantle.dpdns.org/" style="margin-bottom: 8px;">
+        <span class="label">Primary</span>
+      </button>
+
+      <button class="server-option" data-basalt-url="https://basalt.mantleunblocked.workers.dev">
+        <span class="label">Alternative</span>
+      </button>
+
+      <button onclick="closeModal('basalt-chooser-modal')" style="width: 100%; margin-top: 14px; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #b0b0b3; cursor: pointer; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, border-color 0.15s ease;">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  modal.querySelectorAll('.server-option').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var url = this.getAttribute('data-basalt-url');
+      closeModal('basalt-chooser-modal');
       launchWithSpoof(url, false);
-      return;
-    }
-  }
-  // Nothing responded. Launch the primary so the user gets the
-  // popup and can see the block page / retry rather than silence.
-  launchWithSpoof(BASALT_SOURCES[0], false);
+    });
+  });
+
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) closeModal('basalt-chooser-modal');
+  });
+
+  requestAnimationFrame(function () { modal.style.opacity = "1"; });
 }
 
 /* ============================================================
@@ -1287,7 +1327,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
       mineral: launchMineral,
       slate: launchSlate,
       magma: launchMagma,
-      basalt: launchBasalt
+      basalt: showBasaltChooser
     };
     var fn = map[btn.getAttribute("data-launch")];
     if (fn) fn();
@@ -1296,7 +1336,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v5.6 (Basalt hosts hidden, silent fallback)");
+console.info("[Mantle] hub ready · v5.6 (Basalt hostnames hidden)");
 
 try {
   if (window.parent && window.parent !== window) {
