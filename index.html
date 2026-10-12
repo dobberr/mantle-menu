@@ -180,6 +180,7 @@
   .row[data-launch="mineral"] { --row-accent: #22d3ee; }
   .row[data-launch="slate"]   { --row-accent: #34d399; }
   .row[data-launch="magma"]   { --row-accent: #fb923c; }
+  .row[data-launch="basalt"]  { --row-accent: #f87171; }
 
   .row-icon {
     width: 48px;
@@ -337,6 +338,44 @@
     outline-offset: 2px;
   }
 
+  /* ---------- Basalt server picker ---------- */
+
+  .basalt-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .basalt-option + .basalt-option { margin-top: 10px; }
+  .basalt-option:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(248,113,113,0.35);
+  }
+  .basalt-option:focus-visible {
+    outline: 2px solid rgba(248,113,113,0.5);
+    outline-offset: 2px;
+  }
+  .basalt-option .label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fafafa;
+    margin-bottom: 3px;
+  }
+  .basalt-option .host {
+    display: block;
+    font-size: 12.5px;
+    color: #9a9a9d;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+  }
+
   /* ---------- Footer ---------- */
 
   footer {
@@ -439,6 +478,27 @@
         </span>
       </button>
 
+      <button class="row" data-launch="basalt">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8.5"/>
+            <path d="M12 3.5 12 8"/>
+            <path d="M12 16 12 20.5"/>
+            <path d="M3.5 12 8 12"/>
+            <path d="M16 12 20.5 12"/>
+          </svg>
+        </span>
+        <span class="row-body">
+          <span class="row-name">Basalt</span>
+          <span class="row-desc">Fast-paced FPS shooter in the browser</span>
+        </span>
+        <span class="row-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6 15 12 9 18"/>
+          </svg>
+        </span>
+      </button>
+
     </div>
 
     <div class="community" data-grid-avoid>
@@ -464,16 +524,7 @@
 "use strict";
 
 /* ============================================================
-   GRIDPULSE — vanilla port of the React component.
-
-   Text protection uses an elliptical falloff from the centre of
-   each protected block. Cells inside the ellipse sit at FAINT;
-   past the edge they rise quadratically back to full strength
-   over FADE ellipse-radii. No corners, no hard edges.
-
-   `data-grid-avoid` on an element protects each of its lines
-   separately. `data-grid-avoid-block` protects the whole element
-   as one ellipse. The page is dark by design, so tints are fixed.
+   GRIDPULSE
    ============================================================ */
 (function initGridPulse() {
   const el = document.getElementById("grid-pulse");
@@ -488,23 +539,16 @@
   const AVOID = "[data-grid-avoid]";
   const AVOID_BLOCK = "data-grid-avoid-block";
 
-  // Hue ladder down the field: orange at the top (30), blue in
-  // the middle (220), green at the bottom (125). Piecewise
-  // linear; the path from orange to blue passes through green
-  // briefly in the upper-mid, then green becomes dominant at
-  // the bottom.
+  // Hue ladder: orange at top (30), blue at middle (220),
+  // green at bottom (125).
   const HUE_TOP = 30;
   const HUE_MID = 220;
   const HUE_BOT = 125;
 
-  // Tint ladder for a dark ground.
   const TINTS = [72, 65, 58, 51, 44];
   const FAINT = 0.13;
-
-  // Ellipse padding (px) and falloff depth (multiples of radius).
   const PAD = 14;
   const FADE = 1.1;
-
   const FADE_IN = 160;
   const FADE_OUT = 750;
 
@@ -551,7 +595,6 @@
     wake();
   }
 
-  // Elliptical distance: 0 at centre, 1 at edge, >1 outside.
   function brightness(col, row) {
     const x = col * CELL + CELL / 2;
     const y = row * CELL + CELL / 2;
@@ -651,11 +694,7 @@
     if (!pending) pending = requestAnimationFrame(paint);
   }
 
-  // Ambient drift: a small soft cluster every few seconds. The
-  // centre of the cluster holds its light longest; cells on the
-  // edge fade first, so the cluster dissolves from outside in.
-  // Reads as a brief bloom appearing on the field, rather than
-  // isolated squares popping in and out at random.
+  // Ambient drift: soft cluster, centre holds longest, edges fade first.
   let visible = true;
   let beat = 0;
   function drift() {
@@ -816,7 +855,8 @@ const TAGLINES = [
 })();
 
 /* ============================================================
-   ROUTING LAYER
+   ROUTING LAYER (Slate / Magma, and Mineral's fallback)
+   Basalt is hardcoded (see BASALT_PRIMARY/BASALT_MIRROR below).
    ============================================================ */
 const ROUTE_SOURCES = [
   "https://raw.githubusercontent.com/dobberr/cfg/main/r.txt",
@@ -876,7 +916,7 @@ function getRoutes() {
 }
 
 /* ============================================================
-   MINERAL
+   MINERAL — single-file offline bundle
    ============================================================ */
 const MINERAL_SOURCES = [
   "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html",
@@ -923,6 +963,15 @@ async function fetchBundleWithProgress(res, onProgress) {
 }
 
 const fmtMB = n => (n / (1024 * 1024)).toFixed(1);
+
+/* ============================================================
+   BASALT — two servers, user picks in a small modal.
+   Hardcoded (not in r.txt) because the URLs were provided
+   directly and the game is new. Migrate to r.txt later if
+   you want URL updates decoupled from the menu file.
+   ============================================================ */
+const BASALT_PRIMARY = "https://basalt.mantle.dpdns.org/";
+const BASALT_MIRROR  = "https://basalt.mantleunblocked.workers.dev/";
 
 /* ============================================================
    POPUP SPOOFING
@@ -1096,6 +1145,60 @@ async function launchMineral() {
 }
 
 /* ============================================================
+   BASALT MODAL — server picker
+   ============================================================ */
+function showBasaltModal(onPrimary, onMirror) {
+  var existing = document.getElementById('basalt-server-modal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = "basalt-server-modal";
+  modal.style.cssText = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
+  modal.innerHTML = `
+    <div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 24px; width: 100%; max-width: 440px; color: #e4e4e7; box-sizing: border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h2 style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Launch Basalt</h2>
+        <button class="modal-close" onclick="closeModal('basalt-server-modal')" aria-label="Close">&times;</button>
+      </div>
+      <p style="font-size: 13.5px; color: #b0b0b3; line-height: 1.55; margin: 0 0 18px;">Two servers are available. If the primary one is blocked or does not load, use the backup.</p>
+
+      <button class="basalt-option" id="basalt-primary" type="button">
+        <span class="label">Primary server</span>
+        <span class="host">basalt.mantle.dpdns.org</span>
+      </button>
+
+      <button class="basalt-option" id="basalt-mirror" type="button">
+        <span class="label">Backup server</span>
+        <span class="host">basalt.mantleunblocked.workers.dev</span>
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  modal.querySelector('#basalt-primary').onclick = function () {
+    closeModal('basalt-server-modal');
+    onPrimary();
+  };
+  modal.querySelector('#basalt-mirror').onclick = function () {
+    closeModal('basalt-server-modal');
+    onMirror();
+  };
+
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal('basalt-server-modal');
+  });
+
+  requestAnimationFrame(() => { modal.style.opacity = "1"; });
+}
+
+function launchBasalt() {
+  showBasaltModal(
+    function () { launchWithSpoof(BASALT_PRIMARY, false); },
+    function () { launchWithSpoof(BASALT_MIRROR, false); }
+  );
+}
+
+/* ============================================================
    SLATE MODALS
    ============================================================ */
 function openSlateLegalDocs() {
@@ -1151,8 +1254,6 @@ function openSlateLegalDocs() {
   `;
   document.body.appendChild(modal);
 
-  // Click-outside-to-close: only fires if the click landed on the
-  // backdrop, not on the inner card.
   modal.addEventListener("click", function (e) {
     if (e.target === modal) closeModal('slate-privacy-modal');
   });
@@ -1202,70 +1303,4 @@ function showSlateModal(onAccept) {
       <button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 12px; background: #18181b; color: #52525b; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-weight: 500; cursor: not-allowed; font-size: 14px; font-family: inherit; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;">Accept agreements to continue</button>
     </div>
   `;
-  document.body.appendChild(modal);
-  requestAnimationFrame(() => { modal.style.opacity = "1"; });
-
-  var btn = modal.querySelector('#welcome-dismiss-btn');
-  var checkbox = modal.querySelector('#welcome-terms-checkbox');
-
-  function updateLaunchState() {
-    if (checkbox.checked) {
-      btn.disabled = false;
-      btn.innerText = 'Launch Slate';
-      btn.style.background = '#fafafa';
-      btn.style.color = '#0a0a0b';
-      btn.style.borderColor = '#fafafa';
-      btn.style.cursor = 'pointer';
-    } else {
-      btn.disabled = true;
-      btn.innerText = 'Accept agreements to continue';
-      btn.style.background = '#18181b';
-      btn.style.color = '#52525b';
-      btn.style.borderColor = 'rgba(255,255,255,0.06)';
-      btn.style.cursor = 'not-allowed';
-    }
-  }
-
-  checkbox.addEventListener('change', updateLaunchState);
-  btn.onclick = function() {
-    if (!btn.disabled) {
-      closeModal('slate-welcome-modal');
-      onAccept();
-    }
-  };
-}
-
-async function launchSlate() {
-  showSlateModal(async function() {
-    const url = await resolveRoute("slate");
-    if (url) launchWithSpoof(url, true);
-  });
-}
-async function launchMagma() {
-  const url = await resolveRoute("magma");
-  if (url) launchWithSpoof(url, false);
-}
-
-document.querySelectorAll("[data-launch]").forEach(function (btn) {
-  btn.addEventListener("click", function () {
-    var map = { mineral: launchMineral, slate: launchSlate, magma: launchMagma };
-    var fn = map[btn.getAttribute("data-launch")];
-    if (fn) fn();
-  });
-  btn.addEventListener("pointerdown", function () { getRoutes(); }, { once: true });
-});
-
-window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v5.4 (visible modal close, swapped hue ramp, cluster ambient)");
-
-try {
-  if (window.parent && window.parent !== window) {
-    window.parent.localStorage.setItem(
-      "mantle.hub.cache.v1",
-      "<!DOCTYPE html>\n" + document.documentElement.outerHTML
-    );
-  }
-} catch (e) { /* cross-origin parent */ }
-</script>
-</body>
-</html>
+ 
