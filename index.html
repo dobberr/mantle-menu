@@ -309,10 +309,6 @@
     transform: translateX(2px);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .community-text { animation: none; background: none; }
-  }
-
   /* ---------- Modal close button ---------- */
 
   .modal-close {
@@ -517,13 +513,19 @@
 
 /* ============================================================
    GRIDPULSE — vanilla port of the React component.
+
+   Runs UNCONDITIONALLY. We deliberately do NOT honour
+   prefers-reduced-motion here, because school Windows PCs
+   commonly have system animations disabled (via accessibility
+   settings or Group Policy), which previously collapsed the
+   background to a static hairline grid with no live cells on
+   those devices. Same policy as the tagline typewriter.
    ============================================================ */
 (function initGridPulse() {
   const el = document.getElementById("grid-pulse");
   const canvas = el && el.querySelector("canvas");
   const ctx = canvas && canvas.getContext("2d");
   if (!el || !canvas || !ctx) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const CELL = 24;
   const REACH = 2.6;
@@ -1336,7 +1338,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v5.6 (Basalt hostnames hidden)");
+console.info("[Mantle] hub ready · v5.7 (GridPulse always on)");
 
 try {
   if (window.parent && window.parent !== window) {
