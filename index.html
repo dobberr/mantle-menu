@@ -909,8 +909,18 @@ function getRoutes() {
 
 /* ============================================================
    MINERAL
+
+   The bundle lives in Git LFS. media.githubusercontent.com
+   serves the resolved file contents, whereas raw.githubusercontent
+   and the proxies built on top of it (raw.githack, statically)
+   return the LFS pointer file instead, which the fingerprint
+   check below will reject. So the LFS media URL is first and
+   the legacy mirrors are kept only as best-effort fallbacks in
+   case the file is ever moved back out of LFS, or a mirror adds
+   LFS resolution later.
    ============================================================ */
 const MINERAL_SOURCES = [
+  "https://media.githubusercontent.com/media/dobberr/min/refs/heads/main/index.html",
   "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html",
   "https://raw.githack.com/dobberr/min/main/index.html",
   "https://cdn.raw.githack.com/dobberr/min/main/index.html",
@@ -1338,7 +1348,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v5.7 (GridPulse always on)");
+console.info("[Mantle] hub ready · v5.8 (Mineral via LFS media URL)");
 
 try {
   if (window.parent && window.parent !== window) {
