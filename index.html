@@ -246,6 +246,120 @@
     border-top: 1px solid var(--border);
   }
 
+  /* Discord callout — dismissible CTA highlighting the Discord
+     invite as the place where updates are announced. Blurple
+     tint via color-mix so it stays on the surface (no pulse
+     bleed-through) while still reading as a distinct, more
+     important element than the quiet link below. */
+  .discord-callout {
+    position: relative;
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 44px 16px 16px;
+    margin-bottom: 22px;
+    background: color-mix(in srgb, #5865F2 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, #7d87f6 28%, transparent);
+    border-radius: 10px;
+    animation: calloutDrop 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  @keyframes calloutDrop {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .discord-callout.is-dismissing {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  .callout-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: color-mix(in srgb, #5865F2 18%, transparent);
+    border: 1px solid color-mix(in srgb, #7d87f6 30%, transparent);
+    color: #8b95fa;
+  }
+
+  .callout-icon svg { width: 20px; height: 20px; display: block; }
+
+  .callout-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .callout-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #fafafa;
+    letter-spacing: -0.005em;
+    line-height: 1.3;
+  }
+
+  .callout-desc {
+    font-size: 12.5px;
+    color: #b0b0b3;
+    line-height: 1.45;
+  }
+
+  .callout-cta {
+    padding: 7px 16px;
+    background: #5865F2;
+    color: #ffffff;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+  }
+
+  .callout-cta:hover { background: #4752c4; }
+  .callout-cta:focus-visible {
+    outline: 2px solid rgba(125, 135, 246, 0.55);
+    outline-offset: 2px;
+  }
+
+  .callout-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: rgba(176, 176, 179, 0.55);
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .callout-close:hover {
+    color: #fafafa;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .callout-close:focus-visible {
+    outline: 2px solid rgba(125, 135, 246, 0.55);
+    outline-offset: 1px;
+  }
+
   .community-link {
     display: flex;
     align-items: center;
@@ -383,6 +497,16 @@
     .row-icon svg { width: 20px; height: 20px; }
     .row-name { font-size: 15.5px; }
     .row-desc { font-size: 13.5px; }
+    .discord-callout {
+      grid-template-columns: 36px 1fr auto;
+      gap: 12px;
+      padding: 14px 38px 14px 14px;
+    }
+    .callout-icon { width: 36px; height: 36px; }
+    .callout-icon svg { width: 18px; height: 18px; }
+    .callout-title { font-size: 13px; }
+    .callout-desc { font-size: 12px; }
+    .callout-cta { padding: 6px 12px; font-size: 12px; }
   }
 </style>
 </head>
@@ -490,6 +614,22 @@
     </div>
 
     <div class="community" data-grid-avoid>
+
+      <div class="discord-callout" id="discordCallout">
+        <button class="callout-close" id="calloutClose" type="button" aria-label="Dismiss announcement">&times;</button>
+        <div class="callout-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <div class="callout-body">
+          <span class="callout-title">Get every update</span>
+          <span class="callout-desc">New features, releases, and changes are announced in Discord before anywhere else.</span>
+        </div>
+        <a class="callout-cta" href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer">Join</a>
+      </div>
+
       <a class="community-link" href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer">
         <svg class="community-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M20.32 4.37a19.79 19.79 0 0 0-4.88-1.52.07.07 0 0 0-.08.04 13.76 13.76 0 0 0-.61 1.25 18.29 18.29 0 0 0-5.5 0 12.55 12.55 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.29 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1 0-.13c.13-.1.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.37.3a.08.08 0 0 1 0 .12 12.3 12.3 0 0 1-1.87.89.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.85 19.85 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/>
@@ -845,6 +985,34 @@ const TAGLINES = [
     const first = pick();
     type(first, 0, speedFor(first));
   }, 900);
+})();
+
+/* ============================================================
+   DISCORD CALLOUT — dismissible announcement above the
+   community link. Dismissal is remembered in localStorage so
+   returning users aren't nagged. If storage is unavailable
+   (private browsing, blocked), the callout still works but
+   reappears next visit.
+   ============================================================ */
+(function initDiscordCallout() {
+  const callout = document.getElementById("discordCallout");
+  const closeBtn = document.getElementById("calloutClose");
+  if (!callout || !closeBtn) return;
+
+  const KEY = "mantle.discord.callout.dismissed.v1";
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(KEY) === "1"; } catch (_) {}
+  if (dismissed) { callout.remove(); return; }
+
+  closeBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try { localStorage.setItem(KEY, "1"); } catch (_) {}
+    callout.classList.add("is-dismissing");
+    setTimeout(function () {
+      if (callout.parentNode) callout.remove();
+    }, 220);
+  });
 })();
 
 /* ============================================================
@@ -1348,7 +1516,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v5.8 (Mineral via LFS media URL)");
+console.info("[Mantle] hub ready · v5.9 (Discord callout added)");
 
 try {
   if (window.parent && window.parent !== window) {
