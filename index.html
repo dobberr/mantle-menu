@@ -444,9 +444,10 @@
     outline-offset: 2px;
   }
 
-  /* ---------- Basalt & Vent link choosers ---------- */
+  /* ---------- Multi-link chooser (Basalt servers / Vent relays) ---------- */
 
-  .server-option {
+  .link-option {
+    --accent: rgba(255,255,255,0.5);
     width: 100%;
     text-align: left;
     padding: 14px 16px;
@@ -458,15 +459,15 @@
     font-family: inherit;
     transition: background-color 0.15s ease, border-color 0.15s ease;
   }
-  .server-option:hover {
+  .link-option:hover {
     background: #1d1d1e;
-    border-color: rgba(239,68,68,0.34);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
   }
-  .server-option:focus-visible {
-    outline: 2px solid rgba(239,68,68,0.5);
+  .link-option:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
     outline-offset: 2px;
   }
-  .server-option .label {
+  .link-option .label {
     display: block;
     font-size: 14px;
     font-weight: 500;
@@ -1361,86 +1362,83 @@ async function launchMineral() {
   d.open(); d.write(mineralErrorHtml("Every download mirror was unreachable on this network.")); d.close();
 }
 
-/* Basalt link chooser */
-function showBasaltChooser() {
-  var existing = document.getElementById('basalt-chooser-modal');
+/* ============================================================
+   GENERIC LINK CHOOSER
+
+   One renderer shared by every app that offers multiple
+   connection points. Terminology and accent colour are
+   supplied per app so Basalt says "server" everywhere and
+   Vent says "relay" everywhere, with no duplicated markup.
+   ============================================================ */
+function showLinkChooser(cfg) {
+  var modalId = cfg.id + "-chooser-modal";
+  var existing = document.getElementById(modalId);
   if (existing) existing.remove();
 
+  var optionsHtml = cfg.options.map(function (opt, i) {
+    return '<button type="button" class="link-option" data-chooser-url="' + opt.url + '"' +
+           ' style="--accent:' + cfg.accent + ';' + (i < cfg.options.length - 1 ? 'margin-bottom:8px;' : '') + '">' +
+           '<span class="label">' + opt.label + '</span></button>';
+  }).join("");
+
   var modal = document.createElement('div');
-  modal.id = "basalt-chooser-modal";
+  modal.id = modalId;
   modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
   modal.innerHTML = `
     <div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 26px; width: 100%; max-width: 440px; color: #e4e4e7; box-sizing: border-box;">
-      <h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 6px; color: #fafafa;">Choose a Basalt link</h2>
-      <p style="font-size: 13px; color: #b0b0b3; margin: 0 0 18px; line-height: 1.55;">If the first one doesn't load on your network, try the other.</p>
-
-      <button class="server-option" data-basalt-url="https://basalt.mantle.dpdns.org/" style="margin-bottom: 8px;">
-        <span class="label">Server #1</span>
-      </button>
-
-      <button class="server-option" data-basalt-url="https://basalt.mantleunblocked.workers.dev">
-        <span class="label">Server #2 (if the first one doesn't work)</span>
-      </button>
-
-      <button onclick="closeModal('basalt-chooser-modal')" style="width: 100%; margin-top: 14px; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #b0b0b3; cursor: pointer; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, border-color 0.15s ease;">Cancel</button>
+      <h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 6px; color: #fafafa;">Choose a ${cfg.app} ${cfg.noun}</h2>
+      <p style="font-size: 13px; color: #b0b0b3; margin: 0 0 18px; line-height: 1.55;">If ${cfg.noun} #1 doesn't load on your network, try #2.</p>
+      ${optionsHtml}
+      <button type="button" data-chooser-cancel style="width: 100%; margin-top: 14px; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #b0b0b3; cursor: pointer; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, border-color 0.15s ease;">Cancel</button>
     </div>
   `;
   document.body.appendChild(modal);
 
-  modal.querySelectorAll('.server-option').forEach(function (btn) {
+  modal.querySelectorAll('[data-chooser-url]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var url = this.getAttribute('data-basalt-url');
-      closeModal('basalt-chooser-modal');
+      var url = this.getAttribute('data-chooser-url');
+      closeModal(modalId);
       launchWithSpoof(url, false);
     });
   });
 
+  modal.querySelector('[data-chooser-cancel]').addEventListener('click', function () {
+    closeModal(modalId);
+  });
+
   modal.addEventListener('click', function (e) {
-    if (e.target === modal) closeModal('basalt-chooser-modal');
+    if (e.target === modal) closeModal(modalId);
   });
 
   requestAnimationFrame(function () { modal.style.opacity = "1"; });
 }
 
-/* Vent link chooser */
+/* Basalt — connection points are "servers" */
+function showBasaltChooser() {
+  showLinkChooser({
+    id: "basalt",
+    app: "Basalt",
+    noun: "server",
+    accent: "#ef4444",
+    options: [
+      { label: "Server #1", url: "https://basalt.mantle.dpdns.org/" },
+      { label: "Server #2 (if the first one doesn't work)", url: "https://basalt.mantleunblocked.workers.dev" }
+    ]
+  });
+}
+
+/* Vent — connection points are "relays" */
 function showVentChooser() {
-  var existing = document.getElementById('vent-chooser-modal');
-  if (existing) existing.remove();
-
-  var modal = document.createElement('div');
-  modal.id = "vent-chooser-modal";
-  modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
-  modal.innerHTML = `
-    <div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 26px; width: 100%; max-width: 440px; color: #e4e4e7; box-sizing: border-box;">
-      <h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 6px; color: #fafafa;">Choose a Vent relay</h2>
-      <p style="font-size: 13px; color: #b0b0b3; margin: 0 0 18px; line-height: 1.55;">If the first one doesn't load on your network, try the other.</p>
-
-      <button class="server-option" data-vent-url="https://vent.mantle.dpdns.org/" style="margin-bottom: 8px;">
-        <span class="label">Relay #1</span>
-      </button>
-
-      <button class="server-option" data-vent-url="https://vent-74t.pages.dev/">
-        <span class="label">Relay #2 (if the first one doesn't work)</span>
-      </button>
-
-      <button onclick="closeModal('vent-chooser-modal')" style="width: 100%; margin-top: 14px; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #b0b0b3; cursor: pointer; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, border-color 0.15s ease;">Cancel</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  modal.querySelectorAll('.server-option').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var url = this.getAttribute('data-vent-url');
-      closeModal('vent-chooser-modal');
-      launchWithSpoof(url, false);
-    });
+  showLinkChooser({
+    id: "vent",
+    app: "Vent",
+    noun: "relay",
+    accent: "#06b6d4",
+    options: [
+      { label: "Relay #1", url: "https://vent.mantle.dpdns.org/" },
+      { label: "Relay #2 (if the first one doesn't work)", url: "https://vent-74t.pages.dev/" }
+    ]
   });
-
-  modal.addEventListener('click', function (e) {
-    if (e.target === modal) closeModal('vent-chooser-modal');
-  });
-
-  requestAnimationFrame(function () { modal.style.opacity = "1"; });
 }
 
 /* ============================================================
@@ -1608,7 +1606,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.1 (Vent Added & Menu Reordered)");
+console.info("[Mantle] hub ready · v6.2 (Unified link chooser)");
 </script>
 </body>
 </html>
