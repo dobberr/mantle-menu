@@ -178,9 +178,10 @@
   }
 
   .row[data-launch="mineral"] { --row-accent: #22d3ee; }
+  .row[data-launch="basalt"]  { --row-accent: #ef4444; }
+  .row[data-launch="vent"]    { --row-accent: #06b6d4; }
   .row[data-launch="slate"]   { --row-accent: #34d399; }
   .row[data-launch="magma"]   { --row-accent: #fb923c; }
-  .row[data-launch="basalt"]  { --row-accent: #ef4444; }
 
   .row-icon {
     width: 48px;
@@ -246,11 +247,6 @@
     border-top: 1px solid var(--border);
   }
 
-  /* Discord callout — dismissible CTA highlighting the Discord
-     invite as the place where updates are announced. Blurple
-     tint via color-mix so it stays on the surface (no pulse
-     bleed-through) while still reading as a distinct, more
-     important element than the quiet link below. */
   .discord-callout {
     position: relative;
     display: grid;
@@ -448,7 +444,7 @@
     outline-offset: 2px;
   }
 
-  /* ---------- Basalt link chooser ---------- */
+  /* ---------- Basalt & Vent link choosers ---------- */
 
   .server-option {
     width: 100%;
@@ -555,6 +551,48 @@
         </span>
       </button>
 
+      <button class="row" data-launch="basalt">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="7"/>
+            <circle cx="12" cy="12" r="2"/>
+            <line x1="12" y1="2" x2="12" y2="5"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="2" y1="12" x2="5" y2="12"/>
+            <line x1="19" y1="12" x2="22" y2="12"/>
+          </svg>
+        </span>
+        <span class="row-body">
+          <span class="row-name">Basalt</span>
+          <span class="row-desc">Browser-based FPS shooter</span>
+        </span>
+        <span class="row-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6 15 12 9 18"/>
+          </svg>
+        </span>
+      </button>
+
+      <button class="row" data-launch="vent">
+        <span class="row-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="10" r="7"/>
+            <path d="M9 10h6v3a3 3 0 0 1-6 0v-3z"/>
+            <path d="M12 17v4"/>
+            <path d="M8 21h8"/>
+          </svg>
+        </span>
+        <span class="row-body">
+          <span class="row-name">Vent</span>
+          <span class="row-desc">Play Among Us in your browser</span>
+        </span>
+        <span class="row-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6 15 12 9 18"/>
+          </svg>
+        </span>
+      </button>
+
       <button class="row" data-launch="slate">
         <span class="row-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -581,28 +619,6 @@
         <span class="row-body">
           <span class="row-name">Magma</span>
           <span class="row-desc">Unblock any website, on any network</span>
-        </span>
-        <span class="row-arrow" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 6 15 12 9 18"/>
-          </svg>
-        </span>
-      </button>
-
-      <button class="row" data-launch="basalt">
-        <span class="row-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="7"/>
-            <circle cx="12" cy="12" r="2"/>
-            <line x1="12" y1="2" x2="12" y2="5"/>
-            <line x1="12" y1="19" x2="12" y2="22"/>
-            <line x1="2" y1="12" x2="5" y2="12"/>
-            <line x1="19" y1="12" x2="22" y2="12"/>
-          </svg>
-        </span>
-        <span class="row-body">
-          <span class="row-name">Basalt</span>
-          <span class="row-desc">Browser-based FPS shooter</span>
         </span>
         <span class="row-arrow" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -652,14 +668,7 @@
 "use strict";
 
 /* ============================================================
-   GRIDPULSE — vanilla port of the React component.
-
-   Runs UNCONDITIONALLY. We deliberately do NOT honour
-   prefers-reduced-motion here, because school Windows PCs
-   commonly have system animations disabled (via accessibility
-   settings or Group Policy), which previously collapsed the
-   background to a static hairline grid with no live cells on
-   those devices. Same policy as the tagline typewriter.
+   GRIDPULSE
    ============================================================ */
 (function initGridPulse() {
   const el = document.getElementById("grid-pulse");
@@ -988,11 +997,7 @@ const TAGLINES = [
 })();
 
 /* ============================================================
-   DISCORD CALLOUT — dismissible announcement above the
-   community link. Dismissal is remembered in localStorage so
-   returning users aren't nagged. If storage is unavailable
-   (private browsing, blocked), the callout still works but
-   reappears next visit.
+   DISCORD CALLOUT
    ============================================================ */
 (function initDiscordCallout() {
   const callout = document.getElementById("discordCallout");
@@ -1014,6 +1019,50 @@ const TAGLINES = [
     }, 220);
   });
 })();
+
+/* ============================================================
+   ROBUST ASYNC STORAGE (IndexedDB with localStorage fallback)
+   ============================================================ */
+const DB_NAME = "mantle_cache";
+const DB_VERSION = 1;
+const STORE_NAME = "kv";
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME);
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function storageSet(key, value) {
+  try {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      tx.objectStore(STORE_NAME).put(value, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch (e) {
+    try { localStorage.setItem(key, value); return true; } catch (_) { return false; }
+  }
+}
+
+async function storageGet(key) {
+  try {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORE_NAME, "readonly");
+      const req = tx.objectStore(STORE_NAME).get(key);
+      req.onsuccess = e => resolve(e.target.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (e) {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  }
+}
 
 /* ============================================================
    ROUTING LAYER
@@ -1049,6 +1098,13 @@ function getRoutes() {
   if (routesData) return Promise.resolve(routesData);
   if (routesPromise) return routesPromise;
   routesPromise = (async () => {
+    const cachedText = await storageGet(ROUTES_CACHE);
+    if (cachedText && /MANTLE_ROUTES/.test(cachedText)) {
+      try {
+        routesData = parseRoutes(cachedText);
+      } catch (_) { /* invalid cache, proceed to fetch */ }
+    }
+
     for (const url of ROUTE_SOURCES) {
       try {
         const res = await fetch(url, { cache: "no-cache" });
@@ -1057,19 +1113,14 @@ function getRoutes() {
         if (text.length < 40 || !/MANTLE_ROUTES/.test(text)) throw new Error("Unexpected response");
         const parsed = parseRoutes(text);
         routesData = parsed;
-        try { localStorage.setItem(ROUTES_CACHE, text); } catch (_) {}
+        storageSet(ROUTES_CACHE, text);
         return parsed;
       } catch (e) {
         console.warn("[Mantle] route source failed (" + (e && e.message ? e.message : e) + ")");
       }
     }
-    try {
-      const cached = localStorage.getItem(ROUTES_CACHE);
-      if (cached && /MANTLE_ROUTES/.test(cached)) {
-        routesData = parseRoutes(cached);
-        return routesData;
-      }
-    } catch (_) {}
+    
+    if (routesData) return routesData;
     throw new Error("Routing file unreachable");
   })().catch(e => { routesPromise = null; throw e; });
   return routesPromise;
@@ -1077,15 +1128,6 @@ function getRoutes() {
 
 /* ============================================================
    MINERAL
-
-   The bundle lives in Git LFS. media.githubusercontent.com
-   serves the resolved file contents, whereas raw.githubusercontent
-   and the proxies built on top of it (raw.githack, statically)
-   return the LFS pointer file instead, which the fingerprint
-   check below will reject. So the LFS media URL is first and
-   the legacy mirrors are kept only as best-effort fallbacks in
-   case the file is ever moved back out of LFS, or a mirror adds
-   LFS resolution later.
    ============================================================ */
 const MINERAL_SOURCES = [
   "https://media.githubusercontent.com/media/dobberr/min/refs/heads/main/index.html",
@@ -1275,7 +1317,23 @@ async function launchMineral() {
       if (text.length < 100000 || !/eaglercraftXOpts/.test(text))
         throw new Error("Response wasn't the Mineral bundle");
 
-      d.open(); d.write(text); d.close();
+      const frame = d.createElement('iframe');
+      frame.style.cssText = "width:100vw;height:100vh;border:none;display:block;position:absolute;top:0;left:0";
+      frame.setAttribute("allow", "fullscreen; pointer-lock; gamepad; keyboard-map; clipboard-read; clipboard-write; camera; microphone");
+      frame.setAttribute("sandbox", "allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-pointer-lock");
+      frame.setAttribute("allowfullscreen", "true");
+      
+      let finalHtml = text;
+      if (!/<base\s/i.test(text)) {
+        try {
+          const baseUrl = new URL(url).href.substring(0, new URL(url).href.lastIndexOf('/') + 1);
+          finalHtml = text.replace(/<head([^>]*)>/i, `<head$1><base href="${baseUrl}">`);
+        } catch(e) {}
+      }
+      
+      frame.srcdoc = finalHtml;
+      d.body.appendChild(frame);
+      
       applySpoof(d, spoof);
       console.info("[Mantle] Mineral bundle (" + fmtMB(text.length) + " MB) served from " + new URL(url).host);
       return;
@@ -1288,9 +1346,7 @@ async function launchMineral() {
     const fallbackUrl = await resolveRoute("mineral");
     if (fallbackUrl) {
       console.warn("[Mantle] all Mineral mirrors unreachable, falling back to iframe route");
-      d.open();
-      d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000;overflow:hidden;width:100vw;height:100vh;"></body></html>`);
-      d.close();
+      d.body.innerHTML = "";
       const frame = d.createElement('iframe');
       frame.src = fallbackUrl;
       frame.style.cssText = "width:100vw;height:100vh;border:none;display:block";
@@ -1305,13 +1361,7 @@ async function launchMineral() {
   d.open(); d.write(mineralErrorHtml("Every download mirror was unreachable on this network.")); d.close();
 }
 
-/* Basalt link chooser — pops a small modal that lets the user
-   pick between the two links, then launches via the same spoofed
-   popup + iframe pattern used by Slate and Magma. URLs are
-   hardcoded here rather than routed through r.txt because the
-   chooser needs both options available immediately, without
-   waiting on a fetch. The raw hostnames are not shown in the
-   modal, so students can't screenshot and report them. */
+/* Basalt link chooser */
 function showBasaltChooser() {
   var existing = document.getElementById('basalt-chooser-modal');
   if (existing) existing.remove();
@@ -1347,6 +1397,47 @@ function showBasaltChooser() {
 
   modal.addEventListener('click', function (e) {
     if (e.target === modal) closeModal('basalt-chooser-modal');
+  });
+
+  requestAnimationFrame(function () { modal.style.opacity = "1"; });
+}
+
+/* Vent link chooser */
+function showVentChooser() {
+  var existing = document.getElementById('vent-chooser-modal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = "vent-chooser-modal";
+  modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
+  modal.innerHTML = `
+    <div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 26px; width: 100%; max-width: 440px; color: #e4e4e7; box-sizing: border-box;">
+      <h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 6px; color: #fafafa;">Choose a Vent relay</h2>
+      <p style="font-size: 13px; color: #b0b0b3; margin: 0 0 18px; line-height: 1.55;">If the first one doesn't load on your network, try the other.</p>
+
+      <button class="server-option" data-vent-url="https://vent.mantle.dpdns.org/" style="margin-bottom: 8px;">
+        <span class="label">Relay #1</span>
+      </button>
+
+      <button class="server-option" data-vent-url="https://vent-74t.pages.dev/">
+        <span class="label">Relay #2 (if the first one doesn't work)</span>
+      </button>
+
+      <button onclick="closeModal('vent-chooser-modal')" style="width: 100%; margin-top: 14px; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #b0b0b3; cursor: pointer; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, border-color 0.15s ease;">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  modal.querySelectorAll('.server-option').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var url = this.getAttribute('data-vent-url');
+      closeModal('vent-chooser-modal');
+      launchWithSpoof(url, false);
+    });
+  });
+
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) closeModal('vent-chooser-modal');
   });
 
   requestAnimationFrame(function () { modal.style.opacity = "1"; });
@@ -1505,9 +1596,10 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
   btn.addEventListener("click", function () {
     var map = {
       mineral: launchMineral,
+      basalt: showBasaltChooser,
+      vent: showVentChooser,
       slate: launchSlate,
-      magma: launchMagma,
-      basalt: showBasaltChooser
+      magma: launchMagma
     };
     var fn = map[btn.getAttribute("data-launch")];
     if (fn) fn();
@@ -1516,16 +1608,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v5.9 (Discord callout added)");
-
-try {
-  if (window.parent && window.parent !== window) {
-    window.parent.localStorage.setItem(
-      "mantle.hub.cache.v1",
-      "<!DOCTYPE html>\n" + document.documentElement.outerHTML
-    );
-  }
-} catch (e) { /* cross-origin parent */ }
+console.info("[Mantle] hub ready · v6.1 (Vent Added & Menu Reordered)");
 </script>
 </body>
 </html>
