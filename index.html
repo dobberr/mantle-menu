@@ -2,6 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', function(e) {
+    const k = e.key.toLowerCase();
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) || (e.ctrlKey && (k === 'u' || k === 's' || k === 'p'))) {
+      e.preventDefault(); return false;
+    }
+  }, { capture: true });
+  setInterval(() => { try { debugger; } catch(e){} }, 100);
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Google</title>
 <link rel="icon" href="https://www.google.com/favicon.ico">
