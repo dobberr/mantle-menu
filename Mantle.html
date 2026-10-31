@@ -56,7 +56,6 @@ const SPOOF=[{t:"Google Docs",i:"https://ssl.gstatic.com/docs/documents/images/k
 
 document.addEventListener('keydown',function(e){
   const k=e.key.toLowerCase();
-  if(e.ctrlKey&&e.shiftKey&&k==='q'){e.preventDefault();window.location.replace('https://classroom.google.com/');return false;}
   if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(k==='i'||k==='j'||k==='c'))||(e.ctrlKey&&(k==='u'||k==='s'||k==='p'))){e.preventDefault();return false;}
 },{capture:true});
 document.addEventListener('contextmenu',e=>e.preventDefault());
