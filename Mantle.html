@@ -10,15 +10,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- Disable DevTools to prevent casual inspection -->
+<!-- Anti-DevTools: Stops casual inspection and right-clicking -->
 <script src="https://cdn.jsdelivr.net/npm/disable-devtool/disable-devtool.min.js"></script>
 <script>
   DisableDevtool({
-    disableMenu: true,      // Disable right-click context menu
-    clearLog: true,         // Clear console logs periodically
-    interval: 500,          // Check for devtools every 500ms
+    disableMenu: true,
+    clearLog: true,
+    interval: 500,
     ondevtoolopen: () => {
-      // If devtools are somehow opened, wipe the body to hide the code
       document.body.innerHTML = '';
       document.title = '404 Not Found';
     }
@@ -46,10 +45,12 @@
     font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     overflow: hidden;
+    /* Prevent casual text selection/highlighting by snooping teachers */
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   /* ---------- Loader ---------- */
-
   #loader {
     position: fixed;
     inset: 0;
@@ -66,7 +67,6 @@
     max-width: 70vw;
     height: auto;
     pointer-events: none;
-    user-select: none;
     -webkit-user-drag: none;
   }
 
@@ -104,7 +104,6 @@
   }
 
   /* ---------- Error ---------- */
-
   #error {
     position: fixed;
     inset: 0;
@@ -134,7 +133,7 @@
     margin: 0 auto 20px;
     display: block;
     opacity: 0.92;
-    user-select: none;
+    pointer-events: none;
     -webkit-user-drag: none;
   }
 
@@ -178,7 +177,6 @@
   }
 
   /* ---------- Frame ---------- */
-
   #frame {
     position: fixed;
     inset: 0;
@@ -194,20 +192,20 @@
 
   <div id="loader">
     <img id="loaderLogo" alt="" draggable="false"
-         src="https://mantleunblocked.github.io/assets/full%20logo.png"
+         src="https://ssl.gstatic.com/docs/documents/images/kix-fulllogo-2023q4.svg"
          onerror="this.style.display='none';document.getElementById('loaderWordmark').style.display='block';">
-    <span class="wordmark" id="loaderWordmark">MANTLE</span>
+    <span class="wordmark" id="loaderWordmark">DOCS</span>
     <div class="loadbar"></div>
   </div>
 
   <div id="error">
     <div class="error-card">
       <img id="errorLogo" alt="" draggable="false"
-           src="https://mantleunblocked.github.io/assets/full%20logo.png"
+           src="https://ssl.gstatic.com/docs/documents/images/kix-fulllogo-2023q4.svg"
            onerror="this.style.display='none';document.getElementById('errWordmark').style.display='block';">
-      <span class="wordmark" id="errWordmark">MANTLE</span>
-      <h1>Mantle couldn't load</h1>
-      <p id="reason"></p>
+      <span class="wordmark" id="errWordmark">DOCS</span>
+      <h1>Connection interrupted</h1>
+      <p id="reason">Please check your network connection and try again.</p>
       <button id="retry">Retry</button>
     </div>
   </div>
@@ -219,12 +217,11 @@
 "use strict";
 
 /* =======================================================================
-   MANTLE LAUNCHER. 
-   
-   URLs are now clean. Network filters inspect the actual HTTP request, 
-   not JavaScript variables, so fragmentation provided zero technical 
-   evasion. The real protection is domain diversity: if one CDN is 
-   blocked, the loop tries the next until one succeeds.
+   HARDENED LAUNCHER
+   1. Domain diversity defeats network blocks (not string fragmentation).
+   2. Generic keywords defeat Deep Packet Inspection (DPI) content scanning.
+   3. Obfuscated cache keys defeat local storage audits.
+   4. Shortcut blocking defeats casual teacher snooping (Ctrl+S, Ctrl+P).
    ======================================================================= */
 
 const SOURCES = [
@@ -238,7 +235,9 @@ const SOURCES = [
 ];
 
 const BASE_HREF = "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/";
-const CACHE_KEY = "mantle.hub.cache.v1";
+
+// Obfuscated cache key to avoid detection in localStorage audits
+const CACHE_KEY = "__gsuite_theme_pref_v2"; 
 
 const SPOOF_OPTIONS = [
   { title: "Google Docs",      icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" },
@@ -246,8 +245,7 @@ const SPOOF_OPTIONS = [
   { title: "Google Drive",     icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }
 ];
 
-/* ---- stealth: spoof THIS tab. The hub runs in an iframe, so its own
-   title and favicon code can't reach the tab. The shell handles it. ---- */
+/* ---- Stealth: Spoof tab title and favicon continuously ---- */
 (function () {
   const s = SPOOF_OPTIONS[Math.floor(Math.random() * SPOOF_OPTIONS.length)];
   const apply = () => {
@@ -258,9 +256,14 @@ const SPOOF_OPTIONS = [
   };
   apply();
   setInterval(apply, 1000);
+  
+  // Mask the local file path in the address bar to look like a web app state
+  try {
+    window.history.replaceState(null, '', '#view');
+  } catch (_) {}
 })();
 
-/* ---- fetch the hub: mirrors in order, then last cached copy ---- */
+/* ---- Fetch the hub: mirrors in order, then cached copy ---- */
 let hubPromise = null;
 function getHub() {
   if (!hubPromise) {
@@ -271,13 +274,15 @@ function getHub() {
           const res = await fetch(url, { cache: "no-cache" });
           if (!res.ok) throw new Error("HTTP " + res.status);
           const html = await res.text();
-          // Reject school block pages and captive portals that return 200.
+          // Reject school block pages and captive portals that return 200 OK
           if (html.length < 200 || !/<html/i.test(html) || !/mantle/i.test(html))
             throw new Error("Response wasn't the hub");
+          
           try { localStorage.setItem(CACHE_KEY, html); } catch (_) {}
           return html;
         } catch (e) { lastErr = e; }
       }
+      
       const cached = (() => { try { return localStorage.getItem(CACHE_KEY); } catch (_) { return null; } })();
       if (cached) return cached;
       throw lastErr || new Error("All sources failed");
@@ -286,7 +291,7 @@ function getHub() {
   return hubPromise;
 }
 
-/* ---- write the hub into the iframe ---- */
+/* ---- Write the hub into the iframe ---- */
 function install(html, doc) {
   if (BASE_HREF && !/<base\s/i.test(html)) {
     html = /<head[^>]*>/i.test(html)
@@ -298,7 +303,7 @@ function install(html, doc) {
   doc.close();
 }
 
-/* ---- boot ---- */
+/* ---- Boot sequence ---- */
 const frame  = document.getElementById("frame");
 const loader = document.getElementById("loader");
 const errBox = document.getElementById("error");
@@ -310,6 +315,7 @@ async function boot() {
   errBox.style.display = "none";
   loader.style.display = "flex";
   loader.style.opacity = "1";
+  
   try {
     const html = await getHub();
     install(html, frame.contentDocument);
@@ -318,10 +324,9 @@ async function boot() {
     setTimeout(() => { if (loader.parentNode) loader.remove(); }, 300);
   } catch (e) {
     loader.style.display = "none";
-    document.getElementById("reason").textContent =
-      "It will keep retrying automatically. If this is the first run on a " +
-      "school network, open the file once on a home network first. It saves " +
-      "an offline copy for exactly this situation.";
+    // Generic error message to avoid keyword flagging
+    document.getElementById("reason").textContent = 
+      "Unable to load document resources. Please check your network connection.";
     errBox.style.display = "flex";
     setTimeout(boot, 12000);
   } finally {
@@ -330,6 +335,15 @@ async function boot() {
 }
 
 document.getElementById("retry").addEventListener("click", boot);
+
+/* ---- Anti-Snooping: Block Print and Save shortcuts ---- */
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P' || e.key === 's' || e.key === 'S' || e.key === 'u' || e.key === 'U')) {
+    e.preventDefault();
+    return false;
+  }
+});
+
 boot();
 </script>
 </body>
