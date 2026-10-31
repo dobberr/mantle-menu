@@ -10,6 +10,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
 
+<!-- Disable DevTools to prevent casual inspection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool/disable-devtool.min.js"></script>
+<script>
+  DisableDevtool({
+    disableMenu: true,      // Disable right-click context menu
+    clearLog: true,         // Clear console logs periodically
+    interval: 500,          // Check for devtools every 500ms
+    ondevtoolopen: () => {
+      // If devtools are somehow opened, wipe the body to hide the code
+      document.body.innerHTML = '';
+      document.title = '404 Not Found';
+    }
+  });
+</script>
+
 <style>
   :root {
     color-scheme: dark;
@@ -204,46 +219,37 @@
 "use strict";
 
 /* =======================================================================
-   MANTLE LAUNCHER. Fire and forget shell: all design and functionality
-   lives in the hub pulled from GitHub. This file only needs updating
-   if you change mirror hosts or the logo URL.
-
-   Source URLs are stored as fragment arrays and joined at boot, so the
-   raw strings don't sit in plain text in the file or in any console
-   output. This is obscurity, not security: the requests still appear in
-   the Network tab, and network-level blockers work by domain, not by
-   reading source. The real protections are (a) trying multiple CDN
-   hosts so a single block doesn't kill us, (b) caching the hub offline
-   so a first success keeps working, and (c) keeping app domains out of
-   the shell entirely, since they live in the hub.
+   MANTLE LAUNCHER. 
+   
+   URLs are now clean. Network filters inspect the actual HTTP request, 
+   not JavaScript variables, so fragmentation provided zero technical 
+   evasion. The real protection is domain diversity: if one CDN is 
+   blocked, the loop tries the next until one succeeds.
    ======================================================================= */
 
-const FRAGMENTS = {
-  // Each entry is an array of pieces joined at boot to build a URL.
-  sources: [
-    ["https://", "raw", ".", "git", "hub", "user", "content", ".com/", "dobberr/mantle-menu/main/index.html"],
-    ["https://", "cdn", ".", "jsdelivr", ".net", "/gh/", "dobberr/mantle-menu@main/index.html"],
-    ["https://", "raw", ".", "githack", ".com/", "dobberr/mantle-menu/main/index.html"],
-    ["https://", "cdn", ".", "statically", ".io/gh/", "dobberr/mantle-menu/main/index.html"]
-  ],
-  // <base> for any relative assets the hub may gain later.
-  base: ["https://", "cdn", ".", "jsdelivr", ".net", "/gh/", "dobberr/mantle-menu@main/"],
-  cacheKey: "mantle.hub.cache.v1",
-  spoof: [
-    { title: "Google Docs",      icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" },
-    { title: "Google Classroom", icon: "https://www.gstatic.com/classroom/favicon.png" },
-    { title: "Google Drive",     icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }
-  ]
-};
+const SOURCES = [
+  "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html",
+  "https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html",
+  "https://cdn.statically.io/gh/dobberr/mantle-menu/main/index.html",
+  "https://fastly.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html",
+  "https://testingcf.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html",
+  "https://ghproxy.net/https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html",
+  "https://esm.sh/gh/dobberr/mantle-menu@main/index.html"
+];
 
-const SOURCES   = FRAGMENTS.sources.map(parts => parts.join(""));
-const BASE_HREF = FRAGMENTS.base.join("");
-const CACHE_KEY = FRAGMENTS.cacheKey;
+const BASE_HREF = "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/";
+const CACHE_KEY = "mantle.hub.cache.v1";
+
+const SPOOF_OPTIONS = [
+  { title: "Google Docs",      icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" },
+  { title: "Google Classroom", icon: "https://www.gstatic.com/classroom/favicon.png" },
+  { title: "Google Drive",     icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }
+];
 
 /* ---- stealth: spoof THIS tab. The hub runs in an iframe, so its own
    title and favicon code can't reach the tab. The shell handles it. ---- */
 (function () {
-  const s = FRAGMENTS.spoof[Math.floor(Math.random() * FRAGMENTS.spoof.length)];
+  const s = SPOOF_OPTIONS[Math.floor(Math.random() * SPOOF_OPTIONS.length)];
   const apply = () => {
     if (document.title !== s.title) document.title = s.title;
     let l = document.querySelector("link[rel~='icon']");
