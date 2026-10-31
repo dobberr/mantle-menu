@@ -5,270 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Google Docs</title>
 <link rel="icon" href="https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
-
 <style>
-  :root {
-    color-scheme: dark;
-    --bg: #0a0a0b;
-    --surface: #0f0f11;
-    --border: rgba(255,255,255,0.08);
-    --text-1: #fafafa;
-    --text-2: #b0b0b3;
-    --text-3: #9a9a9d;
-    --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
+  :root { color-scheme: dark; --bg: #0a0a0b; --surface: #0f0f11; --border: rgba(255,255,255,0.08); --text-1: #fafafa; --text-2: #b0b0b3; --text-3: #9a9a9d; --ease: cubic-bezier(0.4, 0, 0.2, 1); }
   * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
   html, body { margin: 0; height: 100%; }
-
-  body {
-    background: var(--bg);
-    color: var(--text-1);
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    overflow: hidden;
-    /* Prevent casual text selection/highlighting */
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  /* ---------- Loader ---------- */
-  #loader {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 26px;
-    transition: opacity 0.25s var(--ease);
-  }
-
-  #loader img {
-    width: 260px;
-    max-width: 70vw;
-    height: auto;
-    pointer-events: none;
-    -webkit-user-drag: none;
-  }
-
-  .wordmark {
-    display: none;
-    color: var(--text-1);
-    font-weight: 700;
-    font-size: 18px;
-    letter-spacing: 0.45em;
-    text-indent: 0.45em;
-  }
-
-  .loadbar {
-    width: 140px;
-    height: 2px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-  }
-  .loadbar::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 40%;
-    background: rgba(255,255,255,0.5);
-    border-radius: 2px;
-    animation: sweep 1.3s ease-in-out infinite;
-  }
-  @keyframes sweep {
-    0%   { transform: translateX(-100%); }
-    100% { transform: translateX(350%); }
-  }
-
-  /* ---------- Error ---------- */
-  #error {
-    position: fixed;
-    inset: 0;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    transition: opacity 0.25s var(--ease);
-  }
-
-  .error-card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 28px;
-    text-align: center;
-    box-sizing: border-box;
-  }
-
-  .error-card img {
-    width: 190px;
-    max-width: 60%;
-    height: auto;
-    margin: 0 auto 20px;
-    display: block;
-    opacity: 0.92;
-    pointer-events: none;
-    -webkit-user-drag: none;
-  }
-
-  .error-card .wordmark {
-    display: inline-block;
-    margin-bottom: 20px;
-    font-size: 15px;
-  }
-
-  .error-card h1 {
-    color: var(--text-1);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    margin: 0 0 8px;
-  }
-
-  .error-card p {
-    color: var(--text-3);
-    font-size: 13px;
-    line-height: 1.6;
-    margin: 0 0 20px;
-  }
-
-  #retry {
-    background: #fafafa;
-    color: #0a0a0b;
-    border: 0;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-family: inherit;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s var(--ease);
-  }
+  body { background: var(--bg); color: var(--text-1); font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  #loader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; transition: opacity 0.25s var(--ease); }
+  #loader img { width: 260px; max-width: 70vw; height: auto; pointer-events: none; -webkit-user-drag: none; }
+  .wordmark { display: none; color: var(--text-1); font-weight: 700; font-size: 18px; letter-spacing: 0.45em; text-indent: 0.45em; }
+  .loadbar { width: 140px; height: 2px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; position: relative; }
+  .loadbar::after { content: ""; position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: rgba(255,255,255,0.5); border-radius: 2px; animation: sweep 1.3s ease-in-out infinite; }
+  @keyframes sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+  #error { position: fixed; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; transition: opacity 0.25s var(--ease); }
+  .error-card { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px; text-align: center; box-sizing: border-box; }
+  .error-card img { width: 190px; max-width: 60%; height: auto; margin: 0 auto 20px; display: block; opacity: 0.92; pointer-events: none; -webkit-user-drag: none; }
+  .error-card .wordmark { display: inline-block; margin-bottom: 20px; font-size: 15px; }
+  .error-card h1 { color: var(--text-1); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; }
+  .error-card p { color: var(--text-3); font-size: 13px; line-height: 1.6; margin: 0 0 20px; }
+  #retry { background: #fafafa; color: #0a0a0b; border: 0; border-radius: 8px; padding: 10px 24px; font-family: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: background-color 0.15s var(--ease); }
   #retry:hover { background: #e4e4e7; }
-  #retry:focus-visible {
-    outline: 2px solid rgba(255,255,255,0.4);
-    outline-offset: 2px;
-  }
-
-  /* ---------- Frame ---------- */
-  #frame {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    display: none;
-    background: #000;
-  }
+  #frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: none; background: #000; }
 </style>
 </head>
 <body>
-
   <div id="loader">
-    <img id="loaderLogo" alt="" draggable="false"
-         src="https://ssl.gstatic.com/docs/documents/images/kix-fulllogo-2023q4.svg"
-         onerror="this.style.display='none';document.getElementById('loaderWordmark').style.display='block';">
+    <img id="loaderLogo" alt="" draggable="false" src="https://ssl.gstatic.com/docs/documents/images/kix-fulllogo-2023q4.svg" onerror="this.style.display='none';document.getElementById('loaderWordmark').style.display='block';">
     <span class="wordmark" id="loaderWordmark">DOCS</span>
     <div class="loadbar"></div>
   </div>
-
   <div id="error">
     <div class="error-card">
-      <img id="errorLogo" alt="" draggable="false"
-           src="https://ssl.gstatic.com/docs/documents/images/kix-fulllogo-2023q4.svg"
-           onerror="this.style.display='none';document.getElementById('errWordmark').style.display='block';">
+      <img id="errorLogo" alt="" draggable="false" src="https://ssl.gstatic.com/docs/documents/images/kix-fulllogo-2023q4.svg" onerror="this.style.display='none';document.getElementById('errWordmark').style.display='block';">
       <span class="wordmark" id="errWordmark">DOCS</span>
       <h1>Connection interrupted</h1>
-      <p id="reason">Please check your network connection and try again.</p>
+      <p id="reason">Unable to load document resources. Please check your network connection.</p>
       <button id="retry">Retry</button>
     </div>
   </div>
-
-  <iframe id="frame" referrerpolicy="no-referrer"
-          allow="fullscreen; pointer-lock; gamepad; autoplay; clipboard-read; clipboard-write; camera; microphone"></iframe>
+  <iframe id="frame" referrerpolicy="no-referrer" allow="fullscreen; pointer-lock; gamepad; autoplay; clipboard-read; clipboard-write; camera; microphone"></iframe>
 
 <script>
 "use strict";
-
-/* =======================================================================
-   HARDENED LAUNCHER
-   1. Native anti-devtools traps (no external CDN dependencies).
-   2. Generic keywords defeat Deep Packet Inspection (DPI) content scanning.
-   3. Obfuscated cache keys defeat local storage audits.
-   NOTE: JavaScript CANNOT hide the "file://" protocol. 
-   ======================================================================= */
-
-const SOURCES = [
-  "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html",
-  "https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html",
-  "https://cdn.statically.io/gh/dobberr/mantle-menu/main/index.html",
-  "https://fastly.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html",
-  "https://testingcf.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html",
-  "https://ghproxy.net/https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html",
-  "https://esm.sh/gh/dobberr/mantle-menu@main/index.html"
-];
-
+/* EDIT THESE URLS IF NEEDED */
+const SOURCES = ["https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html", "https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html", "https://cdn.statically.io/gh/dobberr/mantle-menu/main/index.html", "https://fastly.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html", "https://testingcf.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html", "https://ghproxy.net/https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html", "https://esm.sh/gh/dobberr/mantle-menu@main/index.html"];
 const BASE_HREF = "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/";
-const CACHE_KEY = "__gsuite_theme_pref_v2"; 
+const CACHE_KEY = "__gsuite_theme_pref_v2";
+const SPOOF = [{t:"Google Docs",i:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico"},{t:"Google Classroom",i:"https://www.gstatic.com/classroom/favicon.png"},{t:"Google Drive",i:"https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png"}];
 
-const SPOOF_OPTIONS = [
-  { title: "Google Docs",      icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" },
-  { title: "Google Classroom", icon: "https://www.gstatic.com/classroom/favicon.png" },
-  { title: "Google Drive",     icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }
-];
-
-/* ---- 1. NATIVE ANTI-DEVTOOLS TRAPS ---- */
-// Disable right-click context menu
 document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', function(e) { const k = e.key.toLowerCase(); if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) || (e.ctrlKey && (k === 'u' || k === 's' || k === 'p'))) { e.preventDefault(); return false; } }, { capture: true });
+setInterval(() => { try { debugger; } catch(e){} }, 100);
 
-// Block common inspection shortcuts
-document.addEventListener('keydown', function(e) {
-  const key = e.key.toLowerCase();
-  const isCtrl = e.ctrlKey || e.metaKey;
-  const isShift = e.shiftKey;
-  
-  // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U, Ctrl+S, Ctrl+P
-  if (e.key === 'F12' || 
-      (isCtrl && isShift && (key === 'i' || key === 'j' || key === 'c')) ||
-      (isCtrl && (key === 'u' || key === 's' || key === 'p'))) {
-    e.preventDefault();
-    return false;
-  }
-}, { capture: true });
+(function() { const s = SPOOF[Math.floor(Math.random() * SPOOF.length)]; const apply = () => { if (document.title !== s.t) document.title = s.t; let l = document.querySelector("link[rel~='icon']"); if (!l) { l = document.createElement("link"); l.rel = "icon"; document.head.appendChild(l); } if (l.href !== s.i) l.href = s.i; }; apply(); setInterval(apply, 1000); })();
 
-// The Debugger Trap: If DevTools is open, this forces the browser to pause 
-// execution constantly, making inspection unusable. If closed, it's a no-op.
-setInterval(function() {
-  // eslint-disable-next-line no-debugger
-  debugger;
-}, 100);
-
-/* ---- 2. STEALTH: SPOOF TAB ---- */
-(function () {
-  const s = SPOOF_OPTIONS[Math.floor(Math.random() * SPOOF_OPTIONS.length)];
-  const apply = () => {
-    if (document.title !== s.title) document.title = s.title;
-    let l = document.querySelector("link[rel~='icon']");
-    if (!l) { l = document.createElement("link"); l.rel = "icon"; document.head.appendChild(l); }
-    if (l.href !== s.icon) l.href = s.icon;
-  };
-  apply();
-  setInterval(apply, 1000);
-})();
-
-/* ---- 3. FETCH THE HUB ---- */
 let hubPromise = null;
 function getHub() {
   if (!hubPromise) {
@@ -279,36 +71,27 @@ function getHub() {
           const res = await fetch(url, { cache: "no-cache" });
           if (!res.ok) throw new Error("HTTP " + res.status);
           const html = await res.text();
-          if (html.length < 200 || !/<html/i.test(html) || !/mantle/i.test(html))
-            throw new Error("Response wasn't the hub");
-          
+          if (html.length < 200 || !/<html/i.test(html) || !/mantle/i.test(html)) throw new Error("Invalid");
           try { localStorage.setItem(CACHE_KEY, html); } catch (_) {}
           return html;
         } catch (e) { lastErr = e; }
       }
-      
       const cached = (() => { try { return localStorage.getItem(CACHE_KEY); } catch (_) { return null; } })();
       if (cached) return cached;
-      throw lastErr || new Error("All sources failed");
+      throw lastErr || new Error("Failed");
     })().catch(e => { hubPromise = null; throw e; });
   }
   return hubPromise;
 }
 
-/* ---- 4. WRITE THE HUB ---- */
 function install(html, doc) {
   if (BASE_HREF && !/<base\s/i.test(html)) {
-    html = /<head[^>]*>/i.test(html)
-      ? html.replace(/<head[^>]*>/i, m => m + '<base href="' + BASE_HREF + '">')
-      : '<base href="' + BASE_HREF + '">' + html;
+    html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, m => m + '<base href="' + BASE_HREF + '">') : '<base href="' + BASE_HREF + '">' + html;
   }
-  doc.open();
-  doc.write(html);
-  doc.close();
+  doc.open(); doc.write(html); doc.close();
 }
 
-/* ---- 5. BOOT SEQUENCE ---- */
-const frame  = document.getElementById("frame");
+const frame = document.getElementById("frame");
 const loader = document.getElementById("loader");
 const errBox = document.getElementById("error");
 let busy = false;
@@ -319,7 +102,6 @@ async function boot() {
   errBox.style.display = "none";
   loader.style.display = "flex";
   loader.style.opacity = "1";
-  
   try {
     const html = await getHub();
     install(html, frame.contentDocument);
@@ -328,13 +110,9 @@ async function boot() {
     setTimeout(() => { if (loader.parentNode) loader.remove(); }, 300);
   } catch (e) {
     loader.style.display = "none";
-    document.getElementById("reason").textContent = 
-      "Unable to load document resources. Please check your network connection.";
     errBox.style.display = "flex";
     setTimeout(boot, 12000);
-  } finally {
-    busy = false;
-  }
+  } finally { busy = false; }
 }
 
 document.getElementById("retry").addEventListener("click", boot);
