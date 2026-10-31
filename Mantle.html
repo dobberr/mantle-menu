@@ -49,73 +49,81 @@
 
 <script>
 "use strict";
-/* EDIT THESE URLS IF NEEDED */
-const SOURCES = ["https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html", "https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html", "https://cdn.statically.io/gh/dobberr/mantle-menu/main/index.html", "https://fastly.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html", "https://testingcf.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html", "https://ghproxy.net/https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html", "https://esm.sh/gh/dobberr/mantle-menu@main/index.html"];
-const BASE_HREF = "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/";
-const CACHE_KEY = "__gsuite_theme_pref_v2";
-const SPOOF = [{t:"Google Docs",i:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico"},{t:"Google Classroom",i:"https://www.gstatic.com/classroom/favicon.png"},{t:"Google Drive",i:"https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png"}];
+const SOURCES=["https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html","https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html","https://cdn.statically.io/gh/dobberr/mantle-menu/main/index.html","https://fastly.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html","https://testingcf.jsdelivr.net/gh/dobberr/mantle-menu@main/index.html","https://ghproxy.net/https://raw.githubusercontent.com/dobberr/mantle-menu/main/index.html","https://esm.sh/gh/dobberr/mantle-menu@main/index.html"];
+const BASE_HREF="https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/";
+const CACHE_KEY="__gsuite_theme_pref_v2";
+const SPOOF=[{t:"Google Docs",i:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico"},{t:"Google Classroom",i:"https://www.gstatic.com/classroom/favicon.png"},{t:"Google Drive",i:"https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png"}];
 
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', function(e) { const k = e.key.toLowerCase(); if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) || (e.ctrlKey && (k === 'u' || k === 's' || k === 'p'))) { e.preventDefault(); return false; } }, { capture: true });
-setInterval(() => { try { debugger; } catch(e){} }, 100);
+document.addEventListener('keydown',function(e){
+  const k=e.key.toLowerCase();
+  if(e.ctrlKey&&e.shiftKey&&k==='q'){e.preventDefault();window.location.replace('https://classroom.google.com/');return false;}
+  if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(k==='i'||k==='j'||k==='c'))||(e.ctrlKey&&(k==='u'||k==='s'||k==='p'))){e.preventDefault();return false;}
+},{capture:true});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+setInterval(()=>{try{debugger;}catch(e){}},150);
 
-(function() { const s = SPOOF[Math.floor(Math.random() * SPOOF.length)]; const apply = () => { if (document.title !== s.t) document.title = s.t; let l = document.querySelector("link[rel~='icon']"); if (!l) { l = document.createElement("link"); l.rel = "icon"; document.head.appendChild(l); } if (l.href !== s.i) l.href = s.i; }; apply(); setInterval(apply, 1000); })();
+(function(){const s=SPOOF[Math.floor(Math.random()*SPOOF.length)];const apply=()=>{if(document.title!==s.t)document.title=s.t;let l=document.querySelector("link[rel~='icon']");if(!l){l=document.createElement("link");l.rel="icon";document.head.appendChild(l);}if(l.href!==s.i)l.href=s.i;};apply();setInterval(apply,1000);})();
 
-let hubPromise = null;
-function getHub() {
-  if (!hubPromise) {
-    hubPromise = (async () => {
+let hubPromise=null;
+function getHub(){
+  if(!hubPromise){
+    hubPromise=(async()=>{
       let lastErr;
-      for (const url of SOURCES) {
-        try {
-          const res = await fetch(url, { cache: "no-cache" });
-          if (!res.ok) throw new Error("HTTP " + res.status);
-          const html = await res.text();
-          if (html.length < 200 || !/<html/i.test(html) || !/mantle/i.test(html)) throw new Error("Invalid");
-          try { localStorage.setItem(CACHE_KEY, html); } catch (_) {}
+      const targetId='grid-pulse';
+      for(const url of SOURCES){
+        try{
+          const res=await fetch(url,{cache:"no-cache"});
+          if(!res.ok)throw new Error("HTTP "+res.status);
+          const html=await res.text();
+          if(html.length<200||!/<html/i.test(html)||!html.includes(targetId))throw new Error("Invalid");
+          try{localStorage.setItem(CACHE_KEY,html);}catch(_){}
           return html;
-        } catch (e) { lastErr = e; }
+        }catch(e){lastErr=e;}
       }
-      const cached = (() => { try { return localStorage.getItem(CACHE_KEY); } catch (_) { return null; } })();
-      if (cached) return cached;
-      throw lastErr || new Error("Failed");
-    })().catch(e => { hubPromise = null; throw e; });
+      const cached=(()=>{try{return localStorage.getItem(CACHE_KEY);}catch(_){return null;}})();
+      if(cached)return cached;
+      throw lastErr||new Error("Failed");
+    })().catch(e=>{hubPromise=null;throw e;});
   }
   return hubPromise;
 }
 
-function install(html, doc) {
-  if (BASE_HREF && !/<base\s/i.test(html)) {
-    html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, m => m + '<base href="' + BASE_HREF + '">') : '<base href="' + BASE_HREF + '">' + html;
+function install(html,frameElement){
+  let finalHtml=html;
+  if(BASE_HREF&&!/<base\s/i.test(finalHtml)){
+    finalHtml=/<head[^>]*>/i.test(finalHtml)?finalHtml.replace(/<head[^>]*>/i,m=>m+'<base href="'+BASE_HREF+'">'):'<base href="'+BASE_HREF+'">'+finalHtml;
   }
-  doc.open(); doc.write(html); doc.close();
+  const blob=new Blob([finalHtml],{type:'text/html'});
+  const blobUrl=URL.createObjectURL(blob);
+  frameElement.src=blobUrl;
+  setTimeout(()=>URL.revokeObjectURL(blobUrl),5000);
 }
 
-const frame = document.getElementById("frame");
-const loader = document.getElementById("loader");
-const errBox = document.getElementById("error");
-let busy = false;
+const frame=document.getElementById("frame");
+const loader=document.getElementById("loader");
+const errBox=document.getElementById("error");
+let busy=false;
 
-async function boot() {
-  if (busy || frame.style.display === "block") return;
-  busy = true;
-  errBox.style.display = "none";
-  loader.style.display = "flex";
-  loader.style.opacity = "1";
-  try {
-    const html = await getHub();
-    install(html, frame.contentDocument);
-    frame.style.display = "block";
-    loader.style.opacity = "0";
-    setTimeout(() => { if (loader.parentNode) loader.remove(); }, 300);
-  } catch (e) {
-    loader.style.display = "none";
-    errBox.style.display = "flex";
-    setTimeout(boot, 12000);
-  } finally { busy = false; }
+async function boot(){
+  if(busy||frame.style.display==="block")return;
+  busy=true;
+  errBox.style.display="none";
+  loader.style.display="flex";
+  loader.style.opacity="1";
+  try{
+    const html=await getHub();
+    install(html,frame);
+    frame.style.display="block";
+    loader.style.opacity="0";
+    setTimeout(()=>{if(loader.parentNode)loader.remove();},300);
+  }catch(e){
+    loader.style.display="none";
+    errBox.style.display="flex";
+    setTimeout(boot,12000);
+  }finally{busy=false;}
 }
 
-document.getElementById("retry").addEventListener("click", boot);
+document.getElementById("retry").addEventListener("click",boot);
 boot();
 </script>
 </body>
