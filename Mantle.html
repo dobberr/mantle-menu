@@ -10,20 +10,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- Anti-DevTools: Stops casual inspection and right-clicking -->
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool/disable-devtool.min.js"></script>
-<script>
-  DisableDevtool({
-    disableMenu: true,
-    clearLog: true,
-    interval: 500,
-    ondevtoolopen: () => {
-      document.body.innerHTML = '';
-      document.title = '404 Not Found';
-    }
-  });
-</script>
-
 <style>
   :root {
     color-scheme: dark;
@@ -45,7 +31,7 @@
     font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     overflow: hidden;
-    /* Prevent casual text selection/highlighting by snooping teachers */
+    /* Prevent casual text selection/highlighting */
     user-select: none;
     -webkit-user-select: none;
   }
@@ -218,10 +204,10 @@
 
 /* =======================================================================
    HARDENED LAUNCHER
-   1. Domain diversity defeats network blocks (not string fragmentation).
+   1. Native anti-devtools traps (no external CDN dependencies).
    2. Generic keywords defeat Deep Packet Inspection (DPI) content scanning.
    3. Obfuscated cache keys defeat local storage audits.
-   4. Shortcut blocking defeats casual teacher snooping (Ctrl+S, Ctrl+P).
+   NOTE: JavaScript CANNOT hide the "file://" protocol. 
    ======================================================================= */
 
 const SOURCES = [
@@ -235,8 +221,6 @@ const SOURCES = [
 ];
 
 const BASE_HREF = "https://cdn.jsdelivr.net/gh/dobberr/mantle-menu@main/";
-
-// Obfuscated cache key to avoid detection in localStorage audits
 const CACHE_KEY = "__gsuite_theme_pref_v2"; 
 
 const SPOOF_OPTIONS = [
@@ -245,7 +229,33 @@ const SPOOF_OPTIONS = [
   { title: "Google Drive",     icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }
 ];
 
-/* ---- Stealth: Spoof tab title and favicon continuously ---- */
+/* ---- 1. NATIVE ANTI-DEVTOOLS TRAPS ---- */
+// Disable right-click context menu
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Block common inspection shortcuts
+document.addEventListener('keydown', function(e) {
+  const key = e.key.toLowerCase();
+  const isCtrl = e.ctrlKey || e.metaKey;
+  const isShift = e.shiftKey;
+  
+  // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U, Ctrl+S, Ctrl+P
+  if (e.key === 'F12' || 
+      (isCtrl && isShift && (key === 'i' || key === 'j' || key === 'c')) ||
+      (isCtrl && (key === 'u' || key === 's' || key === 'p'))) {
+    e.preventDefault();
+    return false;
+  }
+}, { capture: true });
+
+// The Debugger Trap: If DevTools is open, this forces the browser to pause 
+// execution constantly, making inspection unusable. If closed, it's a no-op.
+setInterval(function() {
+  // eslint-disable-next-line no-debugger
+  debugger;
+}, 100);
+
+/* ---- 2. STEALTH: SPOOF TAB ---- */
 (function () {
   const s = SPOOF_OPTIONS[Math.floor(Math.random() * SPOOF_OPTIONS.length)];
   const apply = () => {
@@ -256,14 +266,9 @@ const SPOOF_OPTIONS = [
   };
   apply();
   setInterval(apply, 1000);
-  
-  // Mask the local file path in the address bar to look like a web app state
-  try {
-    window.history.replaceState(null, '', '#view');
-  } catch (_) {}
 })();
 
-/* ---- Fetch the hub: mirrors in order, then cached copy ---- */
+/* ---- 3. FETCH THE HUB ---- */
 let hubPromise = null;
 function getHub() {
   if (!hubPromise) {
@@ -274,7 +279,6 @@ function getHub() {
           const res = await fetch(url, { cache: "no-cache" });
           if (!res.ok) throw new Error("HTTP " + res.status);
           const html = await res.text();
-          // Reject school block pages and captive portals that return 200 OK
           if (html.length < 200 || !/<html/i.test(html) || !/mantle/i.test(html))
             throw new Error("Response wasn't the hub");
           
@@ -291,7 +295,7 @@ function getHub() {
   return hubPromise;
 }
 
-/* ---- Write the hub into the iframe ---- */
+/* ---- 4. WRITE THE HUB ---- */
 function install(html, doc) {
   if (BASE_HREF && !/<base\s/i.test(html)) {
     html = /<head[^>]*>/i.test(html)
@@ -303,7 +307,7 @@ function install(html, doc) {
   doc.close();
 }
 
-/* ---- Boot sequence ---- */
+/* ---- 5. BOOT SEQUENCE ---- */
 const frame  = document.getElementById("frame");
 const loader = document.getElementById("loader");
 const errBox = document.getElementById("error");
@@ -324,7 +328,6 @@ async function boot() {
     setTimeout(() => { if (loader.parentNode) loader.remove(); }, 300);
   } catch (e) {
     loader.style.display = "none";
-    // Generic error message to avoid keyword flagging
     document.getElementById("reason").textContent = 
       "Unable to load document resources. Please check your network connection.";
     errBox.style.display = "flex";
@@ -335,15 +338,6 @@ async function boot() {
 }
 
 document.getElementById("retry").addEventListener("click", boot);
-
-/* ---- Anti-Snooping: Block Print and Save shortcuts ---- */
-document.addEventListener('keydown', function(e) {
-  if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P' || e.key === 's' || e.key === 'S' || e.key === 'u' || e.key === 'U')) {
-    e.preventDefault();
-    return false;
-  }
-});
-
 boot();
 </script>
 </body>
