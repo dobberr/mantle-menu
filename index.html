@@ -1047,7 +1047,12 @@ function getRoutes() {
   return routesPromise;
 }
 
-const MINERAL_SOURCES = ["https://media.githubusercontent.com/media/dobberr/min/refs/heads/main/index.html", "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html", "https://raw.githack.com/dobberr/min/main/index.html", "https://cdn.raw.githack.com/dobberr/min/main/index.html", "https://dobberr.github.io/min/"];
+const MINERAL_SOURCES = [
+  "https://media.githubusercontent.com/media/dobberr/min/refs/heads/main/index.html",
+  "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html",
+  "https://raw.githack.com/dobberr/min/main/index.html",
+  "https://cdn.raw.githack.com/dobberr/min/main/index.html"
+];
 const MINERAL_SPLASH_HTML = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{height:100%;margin:0;background:#0a0a0b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:-apple-system,Arial,sans-serif}.ring{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.10);border-top-color:rgba(255,255,255,0.55);animation:spin 0.8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}p{color:#9a9a9d;font-size:13px;letter-spacing:0.02em;margin:0}#mProg{color:#b0b0b3;font-size:12.5px;margin:0;min-height:1.4em;font-variant-numeric:tabular-nums}</style></head><body><div class="ring"></div><p>Loading Mineral</p><p id="mProg"></p></body></html>`;
 
 function mineralErrorHtml(reason) {
@@ -1153,7 +1158,9 @@ async function launchMineral() {
         if (!p) return;
         p.textContent = total ? fmtMB(got) + " / " + fmtMB(total) + " MB" : fmtMB(got) + " MB loaded";
       });
-      if (text.length < 100000 || !/eaglercraftXOpts/.test(text)) throw new Error("Response wasn't the Mineral bundle");
+      // Generic validation: must be a reasonable size and contain HTML
+      if (text.length < 2000 || !/<html/i.test(text)) throw new Error("Response wasn't the Mineral bundle");
+      
       const frame = d.createElement('iframe');
       frame.style.cssText = "width:100vw;height:100vh;border:none;display:block;position:absolute;top:0;left:0";
       frame.setAttribute("allow", "fullscreen; pointer-lock; gamepad; keyboard-map; clipboard-read; clipboard-write; camera; microphone");
@@ -1219,7 +1226,7 @@ function showBasaltChooser() {
 }
 
 function showVentChooser() {
-  showLinkChooser({ id: "vent", app: "Vent", noun: "relay", accent: "#06b6d4", options: [{ label: "Relay #1", url: "https://vent.mantle.dpdns.org/" }, { label: "Relay #2", url: "https://vent-74t.pages.dev/", { label: "Relay #3", url: "https://vent.mantleunblocked.workers.dev/" }, }] });
+  showLinkChooser({ id: "vent", app: "Vent", noun: "relay", accent: "#06b6d4", options: [{ label: "Relay #1", url: "https://vent.mantleunblocked.workers.dev/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://vent.mantle.dpdns.org/" }] });
 }
 
 function openSlateLegalDocs() {
@@ -1279,7 +1286,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.4 (Vent URLs & Description Updated)");
+console.info("[Mantle] hub ready · v6.5 (Mineral validation updated)");
 </script>
 </body>
 </html>
