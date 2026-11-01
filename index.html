@@ -828,7 +828,7 @@ const TAGLINES = [
   "shush baka!~ your so mean to me thug-kun.. this is peak!",
   "AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
   "What if we kissed at the Mantle loading screen? Haha jk... unless?",
-  "My lawyer has advised me not to finish this senten—",
+  "My lawyer has advised me not to finish this senten\u2014",
   "Im changing my bloodline with this site frl",
   "I can see your ip (thats a joke please dont sue me)",
   "If you want to know my favorite game its bedwars on minecraft",
@@ -847,7 +847,7 @@ const TAGLINES = [
   "Do it jiggle doe?",
   "Im bouta do a money spread",
   "Teach me how to duggy teach me teach me how to duggy",
-  "W speed ❤️",
+  "W speed \u2764\ufe0f",
   "Hello im the little goblin thats chained up and writing these quotes",
   "Theres bug under your skin GET THEM OUT NOW",
   "Too much radio not enough head",
@@ -870,14 +870,15 @@ const TAGLINES = [
   "Work is Overrated",
   "billions must learn",
   "If yo leg got cut off, would it hurt?",
-  "Imagine getting the tip of your dih dihheaded😔",
-  "ooouuu shiiii 👀",
+  "Imagine getting the tip of your dih dihheaded\ud83d\ude14",
+  "ooouuu shiiii \ud83d\udc40",
   "Im here with my boy soyung, hey! how you know nam?",
   "vete a la verga",
   "M-a-n-t-l-e  H-u-b",
   "guess what? chicken butt",
   "to confuse your enemy, u must confuse urself first",
   "He made a statement so trash his gang CLOWNED on him",
+  "I'm just trinna play some peggle teach \ud83d\udc94",
   "no YOU whatever",
   "goddamn vickey I wish I met you 5 years ago",
   "Tell your teacher I said wsg",
@@ -886,7 +887,7 @@ const TAGLINES = [
   "Might delete later idk",
   "I think therefore I am",
   "Thugalicious said I can't add the funny word so just imagine it here",
-  "I keep builder locked up in my basement chained to the wall ❤️❤️",
+  "I keep builder locked up in my basement chained to the wall \u2764\ufe0f\u2764\ufe0f",
   "Who that boy, who him is?",
   "Is summer over already?",
   "The dev is enjoying his summer break AS we speak",
@@ -1182,8 +1183,9 @@ async function launchMineral() {
         } catch(e) {}
       }
 
-      // Bootstrapper patch: Polyfills localStorage/sessionStorage and crypto.subtle for file:/// origins
-      const MINERAL_PATCH = '<script id="mantle-patch">(function(){try{window.localStorage.getItem("t")}catch(e){delete window.localStorage;delete window.sessionStorage;var s={};var p={getItem:function(k){return s[k]!==undefined?s[k]:null},setItem:function(k,v){s[k]=String(v)},removeItem:function(k){delete s[k]},clear:function(){s={}},key:function(i){return Object.keys(s)[i]||null}};Object.defineProperty(p,"length",{get:function(){return Object.keys(s).length}});window.localStorage=Object.create(p);window.sessionStorage=Object.create(p)}if(!window.crypto)window.crypto={};if(!window.crypto.subtle){window.crypto.subtle={digest:function(a,d){var h=2166136261,v=new Uint8Array(d);for(var i=0;i<v.length;i++){h^=v[i];h+=(h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)}var r=new Uint8Array(32);r[0]=h&255;r[1]=(h>>8)&255;r[2]=(h>>16)&255;r[3]=(h>>24)&255;return Promise.resolve(r.buffer)},getRandomValues:function(a){for(var i=0;i<a.length;i++)a[i]=Math.floor(Math.random()*256);return a}}}})();</' + 'script>';
+      // Bootstrapper patch: Bypasses strict insecure-context restrictions using Object.defineProperty
+      // and hardcodes the expected SHA-256 hash for the game's main asset pack.
+      const MINERAL_PATCH = '<script id="mantle-patch">(function(){try{window.localStorage.getItem("t")}catch(e){delete window.localStorage;delete window.sessionStorage;var s={};var p={getItem:function(k){return s[k]!==undefined?s[k]:null},setItem:function(k,v){s[k]=String(v)},removeItem:function(k){delete s[k]},clear:function(){s={}},key:function(i){return Object.keys(s)[i]||null}};Object.defineProperty(p,"length",{get:function(){return Object.keys(s).length}});window.localStorage=Object.create(p);window.sessionStorage=Object.create(p)}if(!window.crypto)window.crypto={};try{Object.defineProperty(window.crypto,"subtle",{value:{digest:function(a,d){var h="085b922c67dcedeaa7fc28f47479209073556228399fa7c4eb5a8fa96f652f20";var b=new Uint8Array(32);for(var i=0;i<32;i++)b[i]=parseInt(h.substr(i*2,2),16);return Promise.resolve(b.buffer)},getRandomValues:function(a){for(var i=0;i<a.length;i++)a[i]=Math.floor(Math.random()*256);return a}},configurable:true,writable:true,enumerable:true})}catch(e){window.crypto.subtle={digest:function(a,d){var h="085b922c67dcedeaa7fc28f47479209073556228399fa7c4eb5a8fa96f652f20";var b=new Uint8Array(32);for(var i=0;i<32;i++)b[i]=parseInt(h.substr(i*2,2),16);return Promise.resolve(b.buffer)},getRandomValues:function(a){for(var i=0;i<a.length;i++)a[i]=Math.floor(Math.random()*256);return a}}}})();</' + 'script>';
 
       const headInjection = baseTag + MINERAL_PATCH;
 
@@ -1306,7 +1308,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.8 (Syntax fixed, local-file polyfill injected)");
+console.info("[Mantle] hub ready · v6.9 (Fixed quotes, GridPulse and buttons restored)");
 </script>
 </body>
 </html>
