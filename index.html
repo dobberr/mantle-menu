@@ -1173,13 +1173,29 @@ async function launchMineral() {
       const frame = d.createElement('iframe');
       frame.style.cssText = "width:100vw;height:100vh;border:none;display:block;position:absolute;top:0;left:0";
       frame.setAttribute("allow", FRAME_ALLOW);
+      
       let finalHtml = text;
-      if (!/<base\s/i.test(text)) {
+      let baseTag = "";
+      if (!/<base\s/i.test(finalHtml)) {
         try {
           const baseUrl = new URL(url).href.substring(0, new URL(url).href.lastIndexOf('/') + 1);
-          finalHtml = text.replace(/<head([^>]*)>/i, `<head$1><base href="${baseUrl}">`);
+          baseTag = `<base href="${baseUrl}">`;
         } catch(e) {}
       }
+
+      // Bootstrapper patch: Polyfills localStorage/sessionStorage and crypto.subtle for file:/// origins
+      const MINERAL_PATCH = `<script id="mantle-patch">(function(){try{window.localStorage.getItem('t')}catch(e){delete window.localStorage;delete window.sessionStorage;var s={};var p={getItem:function(k){return s[k]!==undefined?s[k]:null},setItem:function(k,v){s[k]=String(v)},removeItem:function(k){delete s[k]},clear:function(){s={}},key:function(i){return Object.keys(s)[i]||null}};Object.defineProperty(p,'length',{get:function(){return Object.keys(s).length}});window.localStorage=Object.create(p);window.sessionStorage=Object.create(p)}if(!window.crypto)window.crypto={};if(!window.crypto.subtle){window.crypto.subtle={digest:function(a,d){var h=2166136261,v=new Uint8Array(d);for(var i=0;i<v.length;i++){h^=v[i];h+=(h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)}var r=new Uint8Array(32);r[0]=h&255;r[1]=(h>>8)&255;r[2]=(h>>16)&255;r[3]=(h>>24)&255;return Promise.resolve(r.buffer)},getRandomValues:function(a){for(var i=0;i<a.length;i++)a[i]=Math.floor(Math.random()*256);return a}}}})();</script>`;
+
+      const headInjection = baseTag + MINERAL_PATCH;
+
+      if (/<head[^>]*>/i.test(finalHtml)) {
+        finalHtml = finalHtml.replace(/<head[^>]*>/i, m => m + headInjection);
+      } else if (/<html[^>]*>/i.test(finalHtml)) {
+        finalHtml = finalHtml.replace(/<html[^>]*>/i, m => m + "<head>" + headInjection + "</head>");
+      } else {
+        finalHtml = headInjection + finalHtml;
+      }
+
       frame.srcdoc = finalHtml;
       d.body.appendChild(frame);
       applySpoof(d, spoof);
@@ -1291,7 +1307,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.7 (Structural bundle validation, sandbox removed)");
+console.info("[Mantle] hub ready · v6.8 (Mineral local-file polyfill injected)");
 </script>
 </body>
 </html>
