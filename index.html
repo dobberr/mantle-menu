@@ -1158,8 +1158,11 @@ async function launchMineral() {
         if (!p) return;
         p.textContent = total ? fmtMB(got) + " / " + fmtMB(total) + " MB" : fmtMB(got) + " MB loaded";
       });
-      // Generic validation: must be a reasonable size and contain HTML
-      if (text.length < 2000 || !/<html/i.test(text)) throw new Error("Response wasn't the Mineral bundle");
+      
+      // Minimal validation: ensure we got a substantial response and not a network block page
+      if (text.length < 500 || /blocked|denied|unauthorized/i.test(text)) {
+        throw new Error("Response wasn't the Mineral bundle");
+      }
       
       const frame = d.createElement('iframe');
       frame.style.cssText = "width:100vw;height:100vh;border:none;display:block;position:absolute;top:0;left:0";
@@ -1286,7 +1289,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.5 (Mineral validation updated)");
+console.info("[Mantle] hub ready · v6.6 (Mineral validation relaxed for new port)");
 </script>
 </body>
 </html>
