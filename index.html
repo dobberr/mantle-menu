@@ -165,7 +165,7 @@
     text-align: left;
     cursor: pointer;
     text-decoration: none;
-    transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
+    transition: background-color 0.15s var(--ease);
   }
 
   .row:hover {
@@ -621,7 +621,7 @@
 
       <a class="community-link" href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer">
         <svg class="community-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M20.32 4.37a19.79 19.79 0 0 0-4.88-1.52.07.07 0 0 0-.08.04 13.76 13.76 0 0 0-.61 1.25 18.29 18.29 0 0 0-5.5 0 12.55 12.55 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.29 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1 0-.13c.13-.1.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.37.3a.08.08 0 0 1 0 .12 12.3 12.3 0 0 1-1.87.89.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.85 19.85 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/>
+          <path d="M20.32 4.37a19.79 19.79 0 0 0-4.88-1.52.07.07 0 0 0-.08.04 13.76 13.76 0 0 0-.61 1.25 18.29 18.29 0 0 0-5.5 0 12.55 12.55 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.29 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1 0-.13c.13-.1.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.37.3a.08.08 0 0 1 0 .12 12.3 12.3 0 0 1-1.87.89.08.08 0 0 0-.04.11c.36.7.78 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.85 19.85 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Z"/>
         </svg>
         <span class="community-text">Join the community Discord</span>
         <svg class="community-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -687,7 +687,7 @@
     }
     if (nearest === Infinity) return 1;
     if (nearest <= 1) return FAINT;
-    const t = Math.min(1, (nearest - 1) / FADE);
+    const t = (nearest - 1) / FADE;
     return FAINT + (1 - FAINT) * (t * t);
   }
 
@@ -741,7 +741,7 @@
     for (let dy = -span; dy <= span; dy++) {
       for (let dx = -span; dx <= span; dx++) {
         const away = Math.hypot(dx, dy);
-        if (away > REACH || Math.random() > 1 - away / (REACH + 0.6)) continue;
+        if (away > REACH || Math.random() > 1 - away / (away + 0.6)) continue;
         light(cx + dx, cy + dy, 260 + Math.random() * 900);
       }
     }
@@ -834,7 +834,7 @@ const TAGLINES = [
   "If you want to know my favorite game its bedwars on minecraft",
   "You miss 95% of the shots you dont take",
   "95% of gamblers give up right before they win",
-  "You're in a simulation GET OUT GET OUT GET OUT GET OUT GET OUT GET OUT GET OUT GET OUT GET OUT",
+  "You're in a simulation GET OUT GET OUT GET OUT GET OUT GET OUT GET OUT GET OUT GET OUT",
   "We ALL going to tel aviv",
   "Yo grok show me this guy with his pants off",
   "If your reading this crtl+shift+q+q ur homies chromie",
@@ -967,7 +967,7 @@ const TAGLINES = [
     e.preventDefault(); e.stopPropagation();
     try { localStorage.setItem(KEY, "1"); } catch (_) {}
     callout.classList.add("is-dismissing");
-    setTimeout(function () { if (callout.parentNode) callout.remove(); }, 220);
+    setTimeout(function () { if (callout.parentNode) callout.parentNode.removeChild(callout); }, 220);
   });
 })();
 
@@ -998,7 +998,7 @@ async function storageGet(key) {
       const tx = db.transaction(STORE_NAME, "readonly");
       const req = tx.objectStore(STORE_NAME).get(key);
       req.onsuccess = e => resolve(e.target.result || null);
-      req.onerror = () => resolve(null);
+      req.onerror = e => resolve(null);
     });
   } catch (e) { try { return localStorage.getItem(key); } catch (_) { return null; } }
 }
@@ -1049,6 +1049,17 @@ function getRoutes() {
 
 const FRAME_ALLOW = "fullscreen; pointer-lock; gamepad; keyboard-map; clipboard-read; clipboard-write; camera; microphone; autoplay";
 
+// How Mineral opens:
+//   "auto"  - a frame when this page is cross-origin isolated (the tab keeps the spoofed title),
+//             its own window otherwise (the game then isolates itself; the tab shows the game's
+//             own title). This is the setting to use: it works from a local file (where a frame
+//             can never be isolated) and from a host that sends the isolation headers.
+//   "frame" - always a frame: the tab keeps the spoofed title, but the Rust build needs an
+//             isolated page, so this host must send the isolation headers (see sw.js).
+//   "direct"- always its own window, whatever this page is: the one choice that never needs a
+//             service worker or a header.
+const MINERAL_LAUNCH = "auto";
+
 const SPOOF_OPTIONS = [{ title: "Google", icon: "https://www.google.com/favicon.ico" }, { title: "Google Classroom", icon: "https://www.gstatic.com/classroom/favicon.png" }, { title: "Google Drive", icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }, { title: "Google Docs", icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" }];
 const WINDOW_FEATURES = "width=" + screen.width + ",height=" + screen.height + ",menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes,popup=yes";
 
@@ -1072,7 +1083,7 @@ function closeModal(id) {
   const m = document.getElementById(id);
   if (!m) return;
   m.style.opacity = "0";
-  setTimeout(function () { m.remove(); }, 160);
+  setTimeout(() => { m.remove(); }, 160);
 }
 
 async function resolveRoute(app) {
@@ -1096,7 +1107,9 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   armCloseGuard(win); keepSpoofed(d, pickSpoof());
   const frame = d.createElement('iframe');
   frame.src = url; frame.style.width = "100vw"; frame.style.height = "100vh"; frame.style.border = "none"; frame.style.display = "block";
-  frame.setAttribute("allow", FRAME_ALLOW);
+  // cross-origin-isolated: the frame is allowed to use the APIs (SharedArrayBuffer) that need an
+  // isolated page. Chrome and Edge only; Firefox and Safari ignore it.
+  frame.setAttribute("allow", FRAME_ALLOW + "; cross-origin-isolated");
   d.body.appendChild(frame);
   if (showNoticeBanner) {
     const banner = d.createElement('div');
@@ -1116,7 +1129,36 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   }
 }
 
-function showLinkChooser(cfg) {
+// Opens the page in its own window, with no frame around it. The page keeps its own title and
+// icon (it is another origin, so this one can't set them), but it is the top-level document, so
+// the game can isolate itself and use its shared worker memory.
+function launchDirect(url) {
+  const win = window.open(url, "_blank", WINDOW_FEATURES);
+  if (!win) { alert("Please allow popups."); return; }
+  return win;
+}
+
+// Mineral's Rust build runs the game in workers that share one memory block, and browsers only
+// allow that on a cross-origin isolated page. A frame can be isolated only when the page holding
+// it is isolated too, and this page is isolated only when its own service worker has added the
+// headers (see sw.js). So:
+//   - this page is isolated  -> the game goes in the frame, and the tab keeps the spoofed title;
+//   - this page is not        -> the game opens in its own window, where its own service worker
+//                                can isolate it (it reloads itself once), and the tab shows the
+//                                game's own title.
+function launchMineral(url) {
+  const framed = MINERAL_LAUNCH === "frame"
+    || (MINERAL_LAUNCH === "auto" && window.crossOriginIsolated);
+  if (framed) {
+    launchWithSpoof(url, false);
+  } else {
+    launchDirect(url);
+  }
+}
+
+// The chooser for an app with more than one address. `launch` opens the chosen one (the frame
+// with the spoofed title, or the game's own window).
+function showLinkChooser(cfg, launch) {
   const modalId = cfg.id + "-chooser-modal";
   let existing = document.getElementById(modalId);
   if (existing) existing.remove();
@@ -1126,13 +1168,13 @@ function showLinkChooser(cfg) {
   const modal = document.createElement('div');
   modal.id = modalId;
   modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
-  modal.innerHTML = '<div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 26px; width: 100%; max-width: 440px; color: #e4e4e7; box-sizing: border-box;"><h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 6px; color: #fafafa;">Choose a ' + cfg.app + ' ' + cfg.noun + '</h2><p style="font-size: 13px; color: #b0b0b3; margin: 0 0 18px; line-height: 1.55;">If ' + cfg.noun + ' #1 doesn\'t load on your network, try #2.</p>' + optionsHtml + '<button type="button" data-chooser-cancel style="width: 100%; margin-top: 14px; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #b0b0b3; cursor: pointer; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease, border-color 0.15s ease;">Cancel</button></div>';
+  modal.innerHTML = '<div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 26px; width: 100%; max-width: 440px; color: #e4e4e7; box-sizing: border-box;"><h2 style="font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin: 0 0 6px; color: #fafafa;">Choose a ' + cfg.app + ' ' + cfg.noun + '</h2><p style="font-size: 13px; color: #b0b0b3; margin: 0 0 18px; line-height: 1.55;">If ' + cfg.noun + ' #1 doesn\'t load on your network, try #2.</p>' + optionsHtml + '<button type="button" data-chooser-cancel style="width: 100%; margin-top: 14px; padding: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #b0b0b3; cursor: pointer; font-size: 13px; font-family: inherit; transition: background-color 0.15s ease;">Cancel</button></div>';
   document.body.appendChild(modal);
   modal.querySelectorAll('[data-chooser-url]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       const url = this.getAttribute('data-chooser-url');
       closeModal(modalId);
-      launchWithSpoof(url, false);
+      launch(url, false);
     });
   });
   modal.querySelector('[data-chooser-cancel]').addEventListener('click', function () { closeModal(modalId); });
@@ -1141,24 +1183,24 @@ function showLinkChooser(cfg) {
 }
 
 function showMineralChooser() {
-  showLinkChooser({ id: "mineral", app: "Mineral", noun: "relay", accent: "#22d3ee", options: [{ label: "Relay #1", url: "https://dobberr.github.io/min/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://mineral.surge.sh/" }] });
+  showLinkChooser({ id: "mineral", app: "Mineral", noun: "relay", accent: "#22d3ee", options: [{ label: "Relay #1", url: "https://dobberr.github.io/min/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://mineral.surge.sh/" }] }, launchMineral);
 }
 
 function showBasaltChooser() {
-  showLinkChooser({ id: "basalt", app: "Basalt", noun: "server", accent: "#ef4444", options: [{ label: "Server #1", url: "https://basalt.mantle.dpdns.org/" }, { label: "Server #2 (if the first one doesn't work)", url: "https://basalt.mantleunblocked.workers.dev" }] });
+  showLinkChooser({ id: "basalt", app: "Basalt", noun: "server", accent: "#ef4444", options: [{ label: "Server #1", url: "https://basalt.mantle.dpdns.org/" }, { label: "Server #2 (if the first one doesn't work)", url: "https://basalt.mantleunblocked.workers.dev" }] }, launchWithSpoof);
 }
 
 function showVentChooser() {
-  showLinkChooser({ id: "vent", app: "Vent", noun: "relay", accent: "#06b6d4", options: [{ label: "Relay #1", url: "https://vent.mantleunblocked.workers.dev/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://vent.mantle.dpdns.org/" }] });
+  showLinkChooser({ id: "vent", app: "Vent", noun: "relay", accent: "#06b6d4", options: [{ label: "Relay #1", url: "https://vent.mantleunblocked.workers.dev/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://vent.mantle.dpdns.org/" }] }, launchWithSpoof);
 }
 
 function openSlateLegalDocs() {
   let existingModal = document.getElementById('slate-privacy-modal');
   if (existingModal) existingModal.remove();
   const modal = document.createElement('div');
-  modal.id = "slate-privacy-modal";
+  modal.id = 'slate-privacy-modal';
   modal.style.cssText = "position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
-  modal.innerHTML = '<div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 28px; width: 100%; max-width: 640px; color: #e4e4e7; max-height: 85vh; overflow-y: auto; box-sizing: border-box;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;"><h2 style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Slate legal agreements</h2><button class="modal-close" onclick="closeModal(\'slate-privacy-modal\')" aria-label="Close">&times;</button></div><div style="font-size: 14px; line-height: 1.65; color: #b0b0b3;"><p style="margin: 0 0 20px;">Last updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p><h3 style="font-size: 14px; font-weight: 600; color: #fafafa; margin: 24px 0 12px 0;">Part 1: Terms of Service</h3><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.1 Acceptance and capacity</h4><p style="margin: 0 0 16px;">By interacting with the Service, you confirm you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.2 Acceptable use</h4><p style="margin: 0 0 16px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.3 Limitation of liability</h4><p style="margin: 0 0 24px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p><div style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.18); border-radius: 8px; padding: 16px; margin-bottom: 24px;"><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #f87171; margin: 0 0 8px 0;">1.4 Slate [UNCENSORED] tier agreement</h4><p style="font-size: 13.5px; color: #fca5a5; margin: 0; line-height: 1.6;">Registered users executing queries via the invite-only <code style="font-family: \'Geist Mono\', monospace; font-size: 12.5px;">Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters, so the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.</p></div><h3 style="font-size: 14px; font-weight: 600; color: #fafafa; margin: 0 0 12px 0;">Part 2: Privacy Policy</h3><p style="margin: 0 0 16px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">2.1 Data we collect</h4><ul style="margin: 0 0 10px 0; padding-left: 22px;"><li style="margin-bottom: 5px;">Account username profile data</li><li style="margin-bottom: 5px;">Authentication email address</li><li style="margin-bottom: 5px;">Last active system timestamps</li><li style="margin-bottom: 5px;">Account initialization timestamps</li><li style="margin-bottom: 5px;">Cumulative totals of prompts sent and token payloads utilized</li></ul></div><button onclick="closeModal(\'slate-privacy-modal\')" style="width: 100%; margin-top: 22px; padding: 12px; background: #fafafa; color: #0a0a0b; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 14px; font-family: inherit;">Close</button></div>';
+  modal.innerHTML = '<div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 28px; width: 100%; max-width: 640px; color: #e4e4e7; max-height: 85vh; overflow-y: auto; box-sizing: border-box;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;"><h2 style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: #fafafa;">Slate legal agreements</h2><button class="modal-close" onclick="closeModal(\'slate-privacy-modal\')" aria-label="Close">&times;</button></div><div style="font-size: 14px; line-height: 1.65; color: #b0b0b3;"><p style="margin: 0 0 20px;">Last updated: 26 June 2026. By accessing and using the Slate AI platform (the "Service"), managed by the Slate operations team ("we", "us", or "our"), you agree to be legally bound by these Terms of Service and Privacy Policy.</p><h3 style="font-size: 14px; font-weight: 600; color: #fafafa; margin: 24px 0 12px 0;">Part 1: Terms of Service</h3><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.1 Acceptance and capacity</h4><p style="margin: 0 0 16px;">By interacting with the Service, you confirm that you have read, understood, and agreed to these Terms. If you are under the age of 18, you confirm that you have obtained the consent of a parent or legal guardian to access and use the Service.</p><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.2 Acceptable use</h4><p style="margin: 0 0 16px;">You assume complete and sole responsibility for all content, prompts, and instructions you submit to the Service. You explicitly agree not to use the Service to generate malicious text, distribute malware, engage in harassment, perform illegal activities, or attempt to systematically abuse backend resource allocations.</p><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">1.3 Limitation of liability</h4><p style="margin: 0 0 24px;">To the maximum extent permitted under UK law, we offer the Service strictly on an "as-is" and "as-available" basis without warranties of any kind. We shall not be liable for any indirect, loss of data, or circumstantial damages resulting from AI model outputs or sudden service interruptions.</p><div style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.18); border-radius: 8px; padding: 16px; margin-bottom: 24px;"><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #f87171; margin: 0 0 8px 0;">1.4 Slate [UNCENSORED] tier agreement</h4><p style="font-size: 13.5px; color: #fca5a5; margin: 0; line-height: 1.6;">Registered users executing queries via the invite-only <code style="font-family: \'Geist Mono\', monospace; font-size: 12.5px;">Slate [UNCENSORED]</code> model (requested through the Discord server) acknowledge full, sole, and exclusive accountability for all prompt strategies and outcomes. This specific model variant operates without traditional filters, so the generation of all content is driven strictly by user intent. The user assumes full legal and ethical responsibility for outputs encountered while utilizing this specific model variant.</p></div><h3 style="font-size: 14px; font-weight: 600; color: #fafafa; margin: 0 0 12px 0;">Part 2: Privacy Policy</h3><p style="margin: 0 0 16px;">We are committed to data minimization. This policy outlines how core parameters are processed cleanly and safely.</p><h4 style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #d4d4d8; margin: 0 0 6px 0;">2.1 Data we collect</h4><ul style="margin: 0 0 10px 0; padding-left: 22px;"><li style="margin-bottom: 5px;">Account username profile data</li><li style="margin-bottom: 5px;">Authentication email address</li><li style="margin-bottom: 5px;">Last active system timestamps</li><li style="margin-bottom: 5px;">Account initialization timestamps</li><li style="margin-bottom: 5px;">Cumulative totals of prompts sent and token payloads utilized</li></ul></div><button onclick="closeModal(\'slate-privacy-modal\')" style="width: 100%; margin-top: 22px; padding: 12px; background: #fafafa; color: #0a0a0b; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 14px; font-family: inherit;">Close</button></div>';
   document.body.appendChild(modal);
   modal.addEventListener("click", function (e) { if (e.target === modal) closeModal('slate-privacy-modal'); });
   requestAnimationFrame(() => { modal.style.opacity = "1"; });
@@ -1169,7 +1211,7 @@ function showSlateModal(onAccept) {
   if (existingModal) existingModal.remove();
   const slateLogo = "https://mantleunblocked.github.io/assets/Slate/Slate.png";
   const modal = document.createElement('div');
-  modal.id = "slate-welcome-modal";
+  modal.id = 'slate-welcome-modal';
   modal.style.cssText = "position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Geist', -apple-system, sans-serif; opacity: 0; transition: opacity 0.16s ease;";
   modal.innerHTML = '<div style="background: #0f0f11; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 28px; width: 100%; max-width: 500px; color: #e4e4e7; max-height: 90vh; overflow-y: auto; box-sizing: border-box;"><div style="text-align: center; margin-bottom: 22px;"><img src="' + slateLogo + '" alt="Slate" style="width: 46px; height: 46px; border-radius: 8px; margin-bottom: 14px; display: inline-block;"><h2 style="font-size: 19px; font-weight: 600; letter-spacing: -0.012em; margin: 0; color: #fafafa;">Welcome to Slate</h2><p style="font-size: 14px; color: #b0b0b3; margin: 6px 0 0 0;">Chat with frontier AI models, in your browser.</p></div><div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 18px; margin-bottom: 20px; line-height: 1.6;"><h3 style="font-size: 11px; text-transform: uppercase; color: #71717a; letter-spacing: 0.08em; margin: 0 0 10px 0; font-weight: 500;">What Slate can do</h3><p style="font-size: 13.5px; color: #b0b0b3; margin: 0 0 14px 0;">Slate assists you directly in your browser. Ask questions, draft and edit writing, summarise long documents, brainstorm ideas, work through problems step by step, or organise notes.</p><p style="font-size: 13px; color: #9a9a9d; margin: 0; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06);"><strong style="color: #d4d4d8; font-weight: 500;">Need a completely unrestricted model?</strong> We offer a private, uncensored version of Slate designed for home use. This version operates completely free of standard safety guardrails, giving you absolute freedom over your prompts. You can request access in our <a href="https://discord.gg/tzvrq8SmSm" target="_blank" rel="noopener noreferrer" style="color: #fafafa; text-decoration: underline; text-underline-offset: 2px;">Discord server</a>.</p></div><div style="margin-bottom: 20px; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);"><label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin: 0;"><input type="checkbox" id="welcome-terms-checkbox" style="margin-top: 3px; width: 16px; height: 16px; accent-color: #fafafa; cursor: pointer; flex-shrink: 0;"><span style="font-size: 13.5px; color: #d4d4d8; line-height: 1.55;">I acknowledge that I have read and agree to the <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #fafafa; font-weight: 500; text-decoration: underline; text-underline-offset: 2px;">Terms of Service</a> and <a href="#" onclick="openSlateLegalDocs(); return false;" style="color: #fafafa; font-weight: 500; text-decoration: underline; text-underline-offset: 2px;">Privacy Policy</a>. I understand my legal responsibilities regarding acceptable use.</span></label></div><button id="welcome-dismiss-btn" disabled style="width: 100%; padding: 12px; background: #18181b; color: #52525b; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-weight: 500; cursor: not-allowed; font-size: 14px; font-family: inherit; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;">Accept agreements to continue</button></div>';
   document.body.appendChild(modal);
@@ -1208,8 +1250,28 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
   btn.addEventListener("pointerdown", function () { getRoutes(); }, { once: true });
 });
 
+// This page's own service worker (sw.js) adds the cross-origin isolation headers, which a
+// static host can't send and a frame holding Mineral needs. The first visit isn't isolated yet:
+// the worker takes over, the page reloads once, and from then on it is.
+//
+// The worker is optional and only for a page served over HTTPS: a local file has no service
+// worker (they need a secure context), so from a local file this does nothing and Mineral opens
+// in its own window, which works there too. To keep this one file with no worker at all, set
+// MINERAL_LAUNCH to "direct".
+(function isolate() {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("sw.js")
+    .then(function () { return navigator.serviceWorker.ready; })
+    .then(function () {
+      if (window.crossOriginIsolated || sessionStorage.getItem("mantle-isolated")) return;
+      sessionStorage.setItem("mantle-isolated", "1");
+      location.reload();
+    })
+    .catch(function (e) { console.info("[Mantle] no service worker (fine: Mineral opens in its own window): " + e); });
+})();
+
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.12 (Mineral switched to iframe relays; fetch/srcdoc machinery removed)");
+console.info("[Mantle] hub ready · v6.13 (Mineral opens directly when this page isn't isolated; frames opt into cross-origin-isolated)");
 </script>
 </body>
 </html>
