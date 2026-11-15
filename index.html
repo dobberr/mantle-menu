@@ -1116,12 +1116,6 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   }
 }
 
-const MINERAL_URL = "https://dobberr.github.io/min/";
-
-function launchMineral() {
-  launchWithSpoof(MINERAL_URL, false);
-}
-
 function showLinkChooser(cfg) {
   const modalId = cfg.id + "-chooser-modal";
   let existing = document.getElementById(modalId);
@@ -1144,6 +1138,10 @@ function showLinkChooser(cfg) {
   modal.querySelector('[data-chooser-cancel]').addEventListener('click', function () { closeModal(modalId); });
   modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(modalId); });
   requestAnimationFrame(function () { modal.style.opacity = "1"; });
+}
+
+function showMineralChooser() {
+  showLinkChooser({ id: "mineral", app: "Mineral", noun: "relay", accent: "#22d3ee", options: [{ label: "Relay #1", url: "https://dobberr.github.io/min/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://mineral.surge.sh/" }] });
 }
 
 function showBasaltChooser() {
@@ -1203,7 +1201,7 @@ async function launchMagma() {
 
 document.querySelectorAll("[data-launch]").forEach(function (btn) {
   btn.addEventListener("click", function () {
-    const map = { mineral: launchMineral, basalt: showBasaltChooser, vent: showVentChooser, slate: launchSlate, magma: launchMagma };
+    const map = { mineral: showMineralChooser, basalt: showBasaltChooser, vent: showVentChooser, slate: launchSlate, magma: launchMagma };
     const fn = map[btn.getAttribute("data-launch")];
     if (fn) fn();
   });
@@ -1211,7 +1209,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v7.0 (Mineral switched to single-relay iframe launch)");
+console.info("[Mantle] hub ready · v6.12 (Mineral switched to iframe relays; fetch/srcdoc machinery removed)");
 </script>
 </body>
 </html>
