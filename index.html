@@ -1047,43 +1047,6 @@ function getRoutes() {
   return routesPromise;
 }
 
-const MINERAL_SOURCES = [
-  "https://media.githubusercontent.com/media/dobberr/min/refs/heads/main/index.html",
-  "https://cdn.jsdelivr.net/gh/dobberr/min@main/index.html",
-  "https://fastly.jsdelivr.net/gh/dobberr/min@main/index.html",
-  "https://testingcf.jsdelivr.net/gh/dobberr/min@main/index.html",
-  "https://raw.githubusercontent.com/dobberr/min/refs/heads/main/index.html",
-  "https://raw.githack.com/dobberr/min/main/index.html",
-  "https://cdn.statically.io/gh/dobberr/min/main/index.html"
-];
-const MINERAL_SPLASH_HTML = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{height:100%;margin:0;background:#0a0a0b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:-apple-system,Arial,sans-serif}.ring{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.10);border-top-color:rgba(255,255,255,0.55);animation:spin 0.8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}p{color:#9a9a9d;font-size:13px;letter-spacing:0.02em;margin:0}#mProg{color:#b0b0b3;font-size:12.5px;margin:0;min-height:1.4em;font-variant-numeric:tabular-nums}</style></head><body><div class="ring"></div><p>Loading Mineral</p><p id="mProg"></p></body></html>`;
-
-function mineralErrorHtml(reason) {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="height:100vh;margin:0;background:#0a0a0b;display:flex;align-items:center;justify-content:center;font-family:-apple-system,Arial,sans-serif"><div style="text-align:center;color:#b0b0b3;max-width:440px;padding:20px"><h2 style="color:#fafafa;font-size:17px;font-weight:600;margin:0 0 10px">Mineral couldn't load</h2><p style="font-size:14px;line-height:1.6;margin:0 0 8px">${reason}</p><p style="font-size:13px;color:#9a9a9d;margin:0">Close this window and relaunch from Mantle.</p></div></body></html>`;
-}
-
-function looksLikeBundle(text) {
-  if (/^version https:\/\/git-lfs/i.test(text.slice(0, 300))) return false;
-  if (text.length < 200) return false;
-  if (!/<!doctype html|<html|<body|<script/i.test(text)) return false;
-  if (/<title>[^<]*(blocked|restricted|denied|web filter|url filter|policy)[^<]*<\/title>/i.test(text)) return false;
-  return true;
-}
-
-async function fetchBundleWithProgress(res, onProgress) {
-  if (!res.body || !res.body.getReader) return res.text();
-  const reader = res.body.getReader(), total = parseInt(res.headers.get("content-length") || "0", 10), chunks = [];
-  let received = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value); received += value.length;
-    onProgress(received, total);
-  }
-  return new Blob(chunks).text();
-}
-const fmtMB = n => (n / (1024 * 1024)).toFixed(1);
-
 const FRAME_ALLOW = "fullscreen; pointer-lock; gamepad; keyboard-map; clipboard-read; clipboard-write; camera; microphone; autoplay";
 
 const SPOOF_OPTIONS = [{ title: "Google", icon: "https://www.google.com/favicon.ico" }, { title: "Google Classroom", icon: "https://www.gstatic.com/classroom/favicon.png" }, { title: "Google Drive", icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }, { title: "Google Docs", icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" }];
@@ -1153,58 +1116,10 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   }
 }
 
-async function launchMineral() {
-  const win = window.open("about:blank", "_blank", WINDOW_FEATURES);
-  if (!win) { alert("Please allow popups."); return; }
-  const d = win.document, spoof = pickSpoof();
-  armCloseGuard(win); keepSpoofed(d, spoof);
-  d.open(); d.write(MINERAL_SPLASH_HTML); d.close();
-  const prog = () => { try { return d.getElementById("mProg"); } catch (_) { return null; } };
-  for (const url of MINERAL_SOURCES) {
-    try {
-      const res = await fetch(url, { cache: "no-cache" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const text = await fetchBundleWithProgress(res, (got, total) => {
-        const p = prog();
-        if (!p) return;
-        p.textContent = total ? fmtMB(got) + " / " + fmtMB(total) + " MB" : fmtMB(got) + " MB loaded";
-      });
-      if (!looksLikeBundle(text)) throw new Error("Response wasn't the Mineral bundle");
-      const frame = d.createElement('iframe');
-      frame.style.cssText = "width:100vw;height:100vh;border:none;display:block;position:absolute;top:0;left:0";
-      frame.setAttribute("allow", FRAME_ALLOW);
+const MINERAL_URL = "https://dobberr.github.io/min/";
 
-      let finalHtml = text;
-      if (!/<base\s/i.test(finalHtml)) {
-        try {
-          const baseUrl = new URL(url).href.substring(0, new URL(url).href.lastIndexOf('/') + 1);
-          const baseTag = '<base href="' + baseUrl + '">';
-          finalHtml = /<head[^>]*>/i.test(finalHtml)
-            ? finalHtml.replace(/<head[^>]*>/i, m => m + baseTag)
-            : baseTag + finalHtml;
-        } catch (e) {}
-      }
-
-      frame.srcdoc = finalHtml;
-      d.body.appendChild(frame);
-      applySpoof(d, spoof);
-      console.info("[Mantle] Mineral bundle (" + fmtMB(text.length) + " MB) served from " + new URL(url).host);
-      return;
-    } catch (e) { console.warn("[Mantle] Mineral mirror failed: " + url + " (" + (e && e.message ? e.message : e) + ")"); }
-  }
-  try {
-    const fallbackUrl = await resolveRoute("mineral");
-    if (fallbackUrl) {
-      console.warn("[Mantle] all Mineral mirrors unreachable, falling back to iframe route");
-      d.body.innerHTML = "";
-      const frame = d.createElement('iframe');
-      frame.src = fallbackUrl; frame.style.cssText = "width:100vw;height:100vh;border:none;display:block";
-      frame.setAttribute("allow", FRAME_ALLOW);
-      d.body.appendChild(frame);
-      return;
-    }
-  } catch (_) {}
-  d.open(); d.write(mineralErrorHtml("Every download mirror was unreachable on this network.")); d.close();
+function launchMineral() {
+  launchWithSpoof(MINERAL_URL, false);
 }
 
 function showLinkChooser(cfg) {
@@ -1296,7 +1211,7 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 });
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.11 (Patch injection removed; compat lives in the bundle)");
+console.info("[Mantle] hub ready · v7.0 (Mineral switched to single-relay iframe launch)");
 </script>
 </body>
 </html>
