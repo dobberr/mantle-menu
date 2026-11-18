@@ -998,7 +998,7 @@ async function storageGet(key) {
       const tx = db.transaction(STORE_NAME, "readonly");
       const req = tx.objectStore(STORE_NAME).get(key);
       req.onsuccess = e => resolve(e.target.result || null);
-      req.onerror = e => resolve(null);
+      req.onerror = () => resolve(null);
     });
   } catch (e) { try { return localStorage.getItem(key); } catch (_) { return null; } }
 }
@@ -1048,17 +1048,6 @@ function getRoutes() {
 }
 
 const FRAME_ALLOW = "fullscreen; pointer-lock; gamepad; keyboard-map; clipboard-read; clipboard-write; camera; microphone; autoplay";
-
-// How Mineral opens:
-//   "auto"  - a frame when this page is cross-origin isolated (the tab keeps the spoofed title),
-//             its own window otherwise (the game then isolates itself; the tab shows the game's
-//             own title). This is the setting to use: it works from a local file (where a frame
-//             can never be isolated) and from a host that sends the isolation headers.
-//   "frame" - always a frame: the tab keeps the spoofed title, but the Rust build needs an
-//             isolated page, so this host must send the isolation headers (see sw.js).
-//   "direct"- always its own window, whatever this page is: the one choice that never needs a
-//             service worker or a header.
-const MINERAL_LAUNCH = "auto";
 
 const SPOOF_OPTIONS = [{ title: "Google", icon: "https://www.google.com/favicon.ico" }, { title: "Google Classroom", icon: "https://www.gstatic.com/classroom/favicon.png" }, { title: "Google Drive", icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" }, { title: "Google Docs", icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico" }];
 const WINDOW_FEATURES = "width=" + screen.width + ",height=" + screen.height + ",menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes,popup=yes";
@@ -1129,35 +1118,8 @@ function launchWithSpoof(url, showNoticeBanner = false) {
   }
 }
 
-// Opens the page in its own window, with no frame around it. The page keeps its own title and
-// icon (it is another origin, so this one can't set them), but it is the top-level document, so
-// the game can isolate itself and use its shared worker memory.
-function launchDirect(url) {
-  const win = window.open(url, "_blank", WINDOW_FEATURES);
-  if (!win) { alert("Please allow popups."); return; }
-  return win;
-}
-
-// Mineral's Rust build runs the game in workers that share one memory block, and browsers only
-// allow that on a cross-origin isolated page. A frame can be isolated only when the page holding
-// it is isolated too, and this page is isolated only when its own service worker has added the
-// headers (see sw.js). So:
-//   - this page is isolated  -> the game goes in the frame, and the tab keeps the spoofed title;
-//   - this page is not        -> the game opens in its own window, where its own service worker
-//                                can isolate it (it reloads itself once), and the tab shows the
-//                                game's own title.
-function launchMineral(url) {
-  const framed = MINERAL_LAUNCH === "frame"
-    || (MINERAL_LAUNCH === "auto" && window.crossOriginIsolated);
-  if (framed) {
-    launchWithSpoof(url, false);
-  } else {
-    launchDirect(url);
-  }
-}
-
-// The chooser for an app with more than one address. `launch` opens the chosen one (the frame
-// with the spoofed title, or the game's own window).
+// The chooser for an app with more than one address. `launch` opens the chosen one in the
+// spoofed about:blank frame, so the address bar never shows the real URL.
 function showLinkChooser(cfg, launch) {
   const modalId = cfg.id + "-chooser-modal";
   let existing = document.getElementById(modalId);
@@ -1183,7 +1145,7 @@ function showLinkChooser(cfg, launch) {
 }
 
 function showMineralChooser() {
-  showLinkChooser({ id: "mineral", app: "Mineral", noun: "relay", accent: "#22d3ee", options: [{ label: "Relay #1", url: "https://dobberr.github.io/min/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://mineral.surge.sh/" }] }, launchMineral);
+  showLinkChooser({ id: "mineral", app: "Mineral", noun: "relay", accent: "#22d3ee", options: [{ label: "Relay #1", url: "https://dobberr.github.io/min/" }, { label: "Relay #2 (if the first one doesn't work)", url: "https://mineral.surge.sh/" }] }, launchWithSpoof);
 }
 
 function showBasaltChooser() {
@@ -1255,9 +1217,8 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
 // the worker takes over, the page reloads once, and from then on it is.
 //
 // The worker is optional and only for a page served over HTTPS: a local file has no service
-// worker (they need a secure context), so from a local file this does nothing and Mineral opens
-// in its own window, which works there too. To keep this one file with no worker at all, set
-// MINERAL_LAUNCH to "direct".
+// worker (they need a secure context), so from a local file the frame can't be isolated and a
+// SharedArrayBuffer-based build won't run there.
 (function isolate() {
   if (!("serviceWorker" in navigator)) return;
   navigator.serviceWorker.register("sw.js")
@@ -1267,11 +1228,11 @@ document.querySelectorAll("[data-launch]").forEach(function (btn) {
       sessionStorage.setItem("mantle-isolated", "1");
       location.reload();
     })
-    .catch(function (e) { console.info("[Mantle] no service worker (fine: Mineral opens in its own window): " + e); });
+    .catch(function (e) { console.info("[Mantle] no service worker (fine on HTTPS relays without it): " + e); });
 })();
 
 window.__mantleBooted = true;
-console.info("[Mantle] hub ready · v6.13 (Mineral opens directly when this page isn't isolated; frames opt into cross-origin-isolated)");
+console.info("[Mantle] hub ready · v6.14 (Mineral always opens in the spoofed about:blank frame)");
 </script>
 </body>
 </html>
